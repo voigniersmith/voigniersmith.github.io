@@ -3,14 +3,14 @@ import { makeStyles } from '@material-ui/core/styles';
 import MyPicture from '../pictures/IMG_1440.jpg'
 
 // Material UI Stuff
-import { Box, Button, Card, CardContent, CardMedia, Divider, IconButton, Typography } from '@material-ui/core';
+import { Button, Card, CardContent, CardMedia, Divider, Typography } from '@material-ui/core';
 import FacebookIcon from '@material-ui/icons/Facebook';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import InstagramIcon from '@material-ui/icons/Instagram';
 import LinkedInIcon from '@material-ui/icons/LinkedIn';
 import MailOutlineIcon from '@material-ui/icons/MailOutline'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
     root: {
         maxWidth: 343,
         margin: 'auto',
@@ -46,7 +46,7 @@ export default function MyCard() {
                     Andrew Smith
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                    smit3407@purdue.edu
+                    voigniersmith@gmail.com
                 </Typography>
                 <br />
                 <Divider variant="fullwidth" horizontal />
@@ -62,11 +62,11 @@ export default function MyCard() {
                 <br />
                 <Divider variant="fullwidth" horizontal />
                 <br />
-                <Button disableRipple style={{ maxWidth: '20%', minWidth: '20%' }} href="https://github.com/smit3407"><GitHubIcon /></Button>
+                <Button disableRipple style={{ maxWidth: '20%', minWidth: '20%' }} href="https://github.com/voigniersmith"><GitHubIcon /></Button>
                 <Button disableRipple style={{ maxWidth: '20%', minWidth: '20%' }} href="https://www.facebook.com/profile.php?id=100003999054326"><FacebookIcon /></Button>
                 <Button disableRipple style={{ maxWidth: '20%', minWidth: '20%' }} href="https://www.instagram.com/andrewnook4/"><InstagramIcon /></Button>
                 <Button disableRipple style={{ maxWidth: '20%', minWidth: '20%' }} href="https://www.linkedin.com/in/voigniersmith/"><LinkedInIcon /></Button>
-                <Button disableRipple style={{ maxWidth: '20%', minWidth: '20%' }} href="mailto:smit3407@purdue.edu"><MailOutlineIcon /></Button>
+                <Button disableRipple style={{ maxWidth: '20%', minWidth: '20%' }} href="mailto:voigniersmith@gmail.com"><MailOutlineIcon /></Button>
             </CardContent>
         </Card>
     );

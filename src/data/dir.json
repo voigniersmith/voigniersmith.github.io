@@ -1,0 +1,35 @@
+{
+    "~": [".", "Applications", "Contact", "Documents", "Downloads", "Pictures", "Resume"],
+    "~/Applications": [
+        ".",
+        "..",
+        "ppps.cpp",
+        "shell.cpp",
+        "omilia.js",
+        "mymalloc.c",
+        "bugdetect.java",
+        "voigniersmith.js",
+        "paging.c",
+        "chess.c",
+        "cryptocalc.py",
+        "moodify.js"
+    ],
+    "~/Contact": [".", "..", "gmail", "school_email", "instagram", "github", "linkedin"],
+    "~/Documents": [".", "..", "README.md", "resume.txt"],
+    "~/Downloads": [".", ".."],
+    "~/Pictures": [
+        ".",
+        "..",
+        "me81",
+        "me41",
+        "floppy19",
+        "bash42",
+        "butterfly19",
+        "raspberrypi11",
+        "omega7",
+        "xinu8",
+        "chessboard",
+        "resume"
+    ],
+    "~/Resume": [".", "..", "resume.txt"]
+}

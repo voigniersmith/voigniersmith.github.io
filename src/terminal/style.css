@@ -1,0 +1,137 @@
+/**
+ * Modfied version of [termynal.js](https://github.com/ines/termynal/blob/master/termynal.css).
+ *
+ * @author Ines Montani <ines@ines.io>
+ * @version 0.0.1
+ * @license MIT
+ */
+
+ .react-terminal-wrapper {
+    --terminal-height: 80vh;
+    --fontsize: 16px;
+    --background-light: #ddd;
+    --color-light: #1a1e24
+
+    width: 100%;
+    background: #252a33;
+    color: #eee;
+    font-size: var(--fontsize);
+    font-family: "Lucida Console", Courier, monospace;
+    /* border-radius: 4px; */
+    padding-left: 15px;
+    padding-right: 15px;
+    position: relative;
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+  }
+  
+  .react-terminal-0 {
+    height: var(--terminal-height);
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid white;
+  }
+
+  .react-terminal-1 {
+    height: calc(100vh - var(--terminal-height));
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .react-terminal-2 {
+    text-align: center;
+    height: 100vh;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .react-terminal-wrapper.react-terminal-light {
+    background: var(--background-light);
+    color: var(--color-light);
+  }
+  
+  .react-terminal-wrapper:before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+  }
+  
+  /* .react-terminal-wrapper:after {
+    content: attr(data-terminal-name);
+    position: absolute;
+    color: #a2a2a2;
+    top: 5px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+  } */
+  
+  .react-terminal-wrapper.react-terminal-light:after {
+    color: #D76D77;
+  }
+  
+  .react-terminal-line {
+    /* Set up defaults and ensure empty lines are displayed. */
+    white-space: pre-wrap;
+    content: '';
+    display: inline-block;
+    vertical-align: text-top;
+  }
+  
+  .react-terminal-light .react-terminal-line {
+    color: #D76D77;
+  }
+
+  .react-terminal-input {
+    color: #a2a2a2
+  }
+  
+  pre {
+    display: inline;
+  }
+
+  pre.caret-block > span {
+    background-color: rgb(255, 255, 255);
+    font-family: monospace;
+    color: white;
+    font-size: var(--fontsize);
+    font-family: "Lucida Console", Courier, monospace;
+    -webkit-animation: blink 1s infinite;
+            animation: blink 1s infinite;
+  }
+
+  .react-terminal-active-input::before {
+    content: '█';
+    font-family: monospace;
+    padding-bottom: 7px;
+    -webkit-animation: blink 1s infinite;
+            animation: blink 1s infinite;
+  }
+  
+  /* Cursor animation */
+  
+  @-webkit-keyframes blink {
+    0% {background-color: rgba(255, 255, 255, 0.5);}
+    50% {background-color: rgba(255, 255, 255, 0);}
+    100% {background-color: rgb(255, 255, 255, 0.5);}
+  }
+  
+  @keyframes blink {
+    0% {background-color: rgb(255, 255, 255, 0.5);}
+    50% {background-color: rgba(255, 255, 255, 0);}
+    100% {background-color: rgb(255, 255, 255, 0.5);}
+  }
+  
+  .terminal-hidden-input {
+      position: fixed;
+      left: -1000px;
+  }
+  

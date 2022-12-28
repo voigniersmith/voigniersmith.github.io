@@ -1,9 +1,51 @@
+# Information :)
 
-# voigniersmith.github.io
+## Basic Setup for React App
 
-Updated Website Portfolio
+`brew install node`
+`brew install npm`
+`npx create-react-app terminalsite --template typescript`
 
-## Getting Started with Create React App
+Then that's it. I have major inspiration from [react-terminal](https://github.com/bony2023/react-terminal) and [react-terminal-ui](https://github.com/jonmbake/react-terminal-ui). I'm not a frontend engineer, so I needed lots of examples.
+Most, if not all, of the functionality is me.
+
+I haven't set up automated tests yet, it's all been me. If you find a bug, I will gladly take any reports on the github,
+but note that it could be an intended feature (probably not tho if it breaks stuff).
+
+## Commands
+
+These are commands I've implemented, they do NOT follow the man page specifications.
+
+```bash
+  cat
+  cd
+  clear
+  echo
+  help
+  history
+  ln
+  ls
+  ps
+  pwd
+  start
+  theme
+  view-react-docs
+  view-source
+  whoami
+```
+
+## Todo Task List
+
+- Project Descriptions
+- Mobile Support
+- Code Cleanup
+- Theme Support
+  - Light
+  - Desert
+- Cat README
+- Chess.EXE
+
+## Old React Setup Stuff
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
@@ -24,6 +66,8 @@ The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
 ### `npm test`
+
+I think this section is new lol.
 
 Launches the test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.

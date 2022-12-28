@@ -36,14 +36,13 @@ These are commands I've implemented, they do NOT follow the man page specificati
 
 ## Todo Task List
 
-- Project Descriptions
+- Chess.EXE
 - Mobile Support
-- Code Cleanup
+- Refactor for Cleanliness
 - Theme Support
   - Light
   - Desert
 - Cat README
-- Chess.EXE
 
 ## Old React Setup Stuff
 

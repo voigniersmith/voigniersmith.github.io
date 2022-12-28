@@ -22,7 +22,6 @@ These are commands I've implemented, they do NOT follow the man page specificati
   clear
   echo
   help
-  history
   ln
   ls
   ps

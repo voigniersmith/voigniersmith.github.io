@@ -1,0 +1,90 @@
+/* Terminal Controller Styles */
+
+.container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background-color: #1e1e1e;
+}
+
+.container.theme-light {
+  background-color: #f5f5f5;
+}
+
+.container.theme-dracula {
+  background-color: #282a36;
+}
+
+.container.theme-nord {
+  background-color: #2e3440;
+}
+
+.container.theme-monokai {
+  background-color: #272822;
+}
+
+.container.theme-solarized-dark {
+  background-color: #002b36;
+}
+
+.container.theme-gruvbox {
+  background-color: #282828;
+}
+
+/* Terminal Controller Animations */
+
+@keyframes expandWidth {
+  from {
+    width: 0;
+  }
+  to {
+    width: 200px;
+  }
+}
+
+@keyframes expandFlex {
+  from {
+    flex: 0;
+  }
+  to {
+    flex: 1;
+  }
+}
+
+
+@keyframes slideUpScreen {
+  from {
+    transform: translateY(100vh);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.terminal-animating {
+  transition: flex 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.file-tree-container-expanding {
+  animation: expandWidth 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.file-tree-container-hidden {
+  width: 0 !important;
+}
+
+.terminals-container-expanding {
+  flex: 1;
+}
+
+.terminals-container-hidden {
+  flex: 0 !important;
+}
+
+.divider-expanding {
+  display: block;
+}
+
+.divider-hidden {
+  display: none;
+}

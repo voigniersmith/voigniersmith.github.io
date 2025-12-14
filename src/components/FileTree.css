@@ -1,0 +1,391 @@
+.file-tree {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  height: 100%;
+  width: 100%;
+}
+
+/* Dark theme */
+.file-tree.file-tree-dark {
+  background-color: #0d0f12;
+  border-right: 1px solid #2a2d33;
+  color: #d4d4d4;
+}
+
+.file-tree-dark .file-tree-header {
+  border-bottom: 1px solid #2a2d33;
+  color: #888;
+}
+
+.file-tree-dark .file-tree-item:hover {
+  background-color: #252829;
+}
+
+.file-tree-dark .file-tree-item.selected {
+  background-color: #333d3d;
+}
+
+.file-tree-dark .file-tree-icon {
+  color: #666;
+}
+
+.file-tree-dark .file-tree-name {
+  color: #aaa;
+}
+
+.file-tree-dark .file-tree-item.selected .file-tree-name {
+  color: #d4d4d4;
+}
+
+.file-tree-dark .file-tree-content::-webkit-scrollbar-thumb {
+  background: #333;
+}
+
+.file-tree-dark .file-tree-content::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* Light theme */
+.file-tree.file-tree-light {
+  background-color: #f5f5f5;
+  border-right: 1px solid #d0d0d0;
+  color: #333;
+}
+
+.file-tree-light .file-tree-header {
+  border-bottom: 1px solid #d0d0d0;
+  color: #666;
+}
+
+.file-tree-light .file-tree-item:hover {
+  background-color: #e8e8e8;
+}
+
+.file-tree-light .file-tree-item.selected {
+  background-color: #cce7ff;
+}
+
+.file-tree-light .file-tree-icon {
+  color: #999;
+}
+
+.file-tree-light .file-tree-name {
+  color: #555;
+}
+
+.file-tree-light .file-tree-item.selected .file-tree-name {
+  color: #000;
+}
+
+.file-tree-light .file-tree-content::-webkit-scrollbar-thumb {
+  background: #bbb;
+}
+
+.file-tree-light .file-tree-content::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Dracula theme */
+.file-tree.file-tree-dracula {
+  background-color: #282a36;
+  border-right: 1px solid #44475a;
+  color: #f8f8f2;
+}
+
+.file-tree-dracula .file-tree-header {
+  border-bottom: 1px solid #44475a;
+  color: #6272a4;
+}
+
+.file-tree-dracula .file-tree-item:hover {
+  background-color: #44475a;
+}
+
+.file-tree-dracula .file-tree-item.selected {
+  background-color: #6272a4;
+}
+
+.file-tree-dracula .file-tree-icon {
+  color: #6272a4;
+}
+
+.file-tree-dracula .file-tree-name {
+  color: #f8f8f2;
+}
+
+.file-tree-dracula .file-tree-item.selected .file-tree-name {
+  color: #ffffff;
+}
+
+.file-tree-dracula .file-tree-content::-webkit-scrollbar-thumb {
+  background: #44475a;
+}
+
+.file-tree-dracula .file-tree-content::-webkit-scrollbar-thumb:hover {
+  background: #6272a4;
+}
+
+/* Nord theme */
+.file-tree.file-tree-nord {
+  background-color: #2e3440;
+  border-right: 1px solid #3b4252;
+  color: #eceff4;
+}
+
+.file-tree-nord .file-tree-header {
+  border-bottom: 1px solid #3b4252;
+  color: #81a1c1;
+}
+
+.file-tree-nord .file-tree-item:hover {
+  background-color: #3b4252;
+}
+
+.file-tree-nord .file-tree-item.selected {
+  background-color: #81a1c1;
+}
+
+.file-tree-nord .file-tree-icon {
+  color: #81a1c1;
+}
+
+.file-tree-nord .file-tree-name {
+  color: #eceff4;
+}
+
+.file-tree-nord .file-tree-item.selected .file-tree-name {
+  color: #2e3440;
+}
+
+.file-tree-nord .file-tree-content::-webkit-scrollbar-thumb {
+  background: #3b4252;
+}
+
+.file-tree-nord .file-tree-content::-webkit-scrollbar-thumb:hover {
+  background: #81a1c1;
+}
+
+/* Monokai theme */
+.file-tree.file-tree-monokai {
+  background-color: #272822;
+  border-right: 1px solid #3e3d32;
+  color: #f8f8f2;
+}
+
+.file-tree-monokai .file-tree-header {
+  border-bottom: 1px solid #3e3d32;
+  color: #75715e;
+}
+
+.file-tree-monokai .file-tree-item:hover {
+  background-color: #3e3d32;
+}
+
+.file-tree-monokai .file-tree-item.selected {
+  background-color: #49483e;
+}
+
+.file-tree-monokai .file-tree-icon {
+  color: #75715e;
+}
+
+.file-tree-monokai .file-tree-name {
+  color: #f8f8f2;
+}
+
+.file-tree-monokai .file-tree-item.selected .file-tree-name {
+  color: #ffffff;
+}
+
+.file-tree-monokai .file-tree-content::-webkit-scrollbar-thumb {
+  background: #3e3d32;
+}
+
+.file-tree-monokai .file-tree-content::-webkit-scrollbar-thumb:hover {
+  background: #49483e;
+}
+
+/* Solarized Dark theme */
+.file-tree.file-tree-solarized-dark {
+  background-color: #002b36;
+  border-right: 1px solid #073642;
+  color: #839496;
+}
+
+.file-tree-solarized-dark .file-tree-header {
+  border-bottom: 1px solid #073642;
+  color: #586e75;
+}
+
+.file-tree-solarized-dark .file-tree-item:hover {
+  background-color: #073642;
+}
+
+.file-tree-solarized-dark .file-tree-item.selected {
+  background-color: #268bd2;
+}
+
+.file-tree-solarized-dark .file-tree-icon {
+  color: #586e75;
+}
+
+.file-tree-solarized-dark .file-tree-name {
+  color: #839496;
+}
+
+.file-tree-solarized-dark .file-tree-item.selected .file-tree-name {
+  color: #fdf6e3;
+}
+
+.file-tree-solarized-dark .file-tree-content::-webkit-scrollbar-thumb {
+  background: #073642;
+}
+
+.file-tree-solarized-dark .file-tree-content::-webkit-scrollbar-thumb:hover {
+  background: #268bd2;
+}
+
+/* Gruvbox theme */
+.file-tree.file-tree-gruvbox {
+  background-color: #282828;
+  border-right: 1px solid #3c3836;
+  color: #ebdbb2;
+}
+
+.file-tree-gruvbox .file-tree-header {
+  border-bottom: 1px solid #3c3836;
+  color: #928374;
+}
+
+.file-tree-gruvbox .file-tree-item:hover {
+  background-color: #3c3836;
+}
+
+.file-tree-gruvbox .file-tree-item.selected {
+  background-color: #83a598;
+}
+
+.file-tree-gruvbox .file-tree-icon {
+  color: #928374;
+}
+
+.file-tree-gruvbox .file-tree-name {
+  color: #ebdbb2;
+}
+
+.file-tree-gruvbox .file-tree-item.selected .file-tree-name {
+  color: #282828;
+}
+
+.file-tree-gruvbox .file-tree-content::-webkit-scrollbar-thumb {
+  background: #3c3836;
+}
+
+.file-tree-gruvbox .file-tree-content::-webkit-scrollbar-thumb:hover {
+  background: #83a598;
+}
+
+.file-tree-header {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-bottom: 1px solid #2a2d33;
+  font-size: 1em;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+.file-tree-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.file-tree-item {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.1s ease;
+}
+
+.file-tree-item:hover {
+  background-color: #252829;
+}
+
+.file-tree-item.selected {
+  background-color: #333d3d;
+}
+
+.file-tree-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  margin-right: 8px;
+  font-size: 1em;
+  color: #666;
+  flex-shrink: 0;
+  font-family: "Lucida Console", Courier, monospace;
+  font-weight: bold;
+}
+
+.file-tree-name {
+  font-size: 1em;
+  color: #aaa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "Lucida Console", Courier, monospace;
+}
+
+.file-tree-item.selected .file-tree-name {
+  color: #d4d4d4;
+}
+
+/* Scrollbar styling */
+.file-tree-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.file-tree-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.file-tree-content::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+.file-tree-content::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+.file-tree-divider {
+  width: 6px;
+  background-color: #444;
+  cursor: col-resize;
+  user-select: none;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+  z-index: 100;
+  pointer-events: auto;
+  border-left: 1px solid #555;
+  border-right: 1px solid #333;
+}
+
+.file-tree-divider:hover {
+  background-color: #66bb6a;
+}

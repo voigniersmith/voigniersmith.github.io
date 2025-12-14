@@ -1,0 +1,64 @@
+/* StartScreen Expansion Animations */
+
+@keyframes resizeToTop {
+  from {
+    height: 100%;
+  }
+  to {
+    height: 50%;
+  }
+}
+
+@keyframes slideUpFromBottom {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: 50%;
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFileTree {
+  from {
+    width: 0;
+  }
+  to {
+    width: 200px;
+  }
+}
+
+.start-terminal-expanding {
+  animation: resizeToTop 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.input-terminal-expanding {
+  animation: slideUpFromBottom 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s forwards;
+  overflow: hidden;
+}
+
+.file-tree-wrapper-expanding {
+  animation: slideInFileTree 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.file-tree-wrapper-expanded {
+  /* No animation - inline styles control width */
+}
+
+.file-tree-wrapper-hidden {
+  width: 0;
+  overflow: hidden;
+}
+
+.divider-vertical-hidden {
+  display: none;
+}
+
+.divider-vertical-expanding {
+  display: block;
+}
+
+.divider-horizontal-expanding {
+  display: block;
+}

@@ -1,5 +1,6 @@
 import { Command, CommandDeps } from './types';
 import { help } from '../data';
+import { MAN_PAGES, PROJECTS } from '../data/manPages';
 import { AnimationSpeed } from '../utils/animationSpeed';
 
 export function createInfoCommands(deps: CommandDeps): Command[] {
@@ -44,6 +45,70 @@ export function createInfoCommands(deps: CommandDeps): Command[] {
             ld.push(createOutput(`  ${index + 1}  ${cmd}`));
           });
         }
+        return ld;
+      },
+    },
+    {
+      match: (input) => {
+        const cmd = input.toLocaleLowerCase().trim();
+        return cmd === 'man' || cmd.startsWith('man ');
+      },
+      description: "'man [command]': display detailed documentation for a command",
+      execute: (input, ld) => {
+        const args = input.toLocaleLowerCase().trim().substring(3).trim();
+
+        if (!args) {
+          ld.push(createOutput(''));
+          ld.push(createOutput('Usage: man <command>'));
+          ld.push(createOutput(''));
+          ld.push(createOutput('Available man pages:'));
+          Object.keys(MAN_PAGES).forEach((cmd) => {
+            ld.push(createOutput(`  man ${cmd}`));
+          });
+          ld.push(createOutput(''));
+          return ld;
+        }
+
+        const manPage = MAN_PAGES[args];
+        if (!manPage) {
+          ld.push(createOutput(`man: no manual entry for "${args}"`));
+          return ld;
+        }
+
+        ld.push(createOutput(''));
+        ld.push(createOutput(`NAME`));
+        ld.push(createOutput(`  ${manPage.name} - ${manPage.description}`));
+        ld.push(createOutput(''));
+        ld.push(createOutput(`USAGE`));
+        ld.push(createOutput(`  ${manPage.usage}`));
+        ld.push(createOutput(''));
+        ld.push(createOutput(`EXAMPLES`));
+        manPage.examples.forEach((example) => {
+          ld.push(createOutput(`  ${example}`));
+        });
+        if (manPage.relatedCommands && manPage.relatedCommands.length > 0) {
+          ld.push(createOutput(''));
+          ld.push(createOutput(`SEE ALSO`));
+          ld.push(createOutput(`  ${manPage.relatedCommands.join(', ')}`));
+        }
+        ld.push(createOutput(''));
+        return ld;
+      },
+    },
+    {
+      match: (input) => input.toLocaleLowerCase().trim() === 'projects',
+      description: "'projects': list all your projects",
+      execute: (input, ld) => {
+        ld.push(createOutput(''));
+        ld.push(createOutput('Available Projects:'));
+        ld.push(createOutput(''));
+        PROJECTS.forEach((project) => {
+          ld.push(createOutput(`  ${project.filename.padEnd(20)} ${project.description}`));
+        });
+        ld.push(createOutput(''));
+        ld.push(createOutput('Use "cat [filename]" to view project details'));
+        ld.push(createOutput('Use "ln [filename]" to open the GitHub repository'));
+        ld.push(createOutput(''));
         return ld;
       },
     },

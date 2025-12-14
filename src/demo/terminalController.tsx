@@ -1,316 +1,293 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import Terminal, { ColorMode, TerminalInput, TerminalOutput } from '../terminal/terminal';
-import {
-  help,
-  dir,
-  dir_type,
-  start,
-  floppy19,
-  bash42,
-  butterfly19,
-  omega7,
-  xinu8,
-  chessboard,
-  resume,
-  me41,
-  me81,
-  raspberrypi11
-} from '../data/index';
-import {
-  bugdetectDes,
-  chessDes,
-  cryptocalcDes,
-  moodifyDes,
-  mymallocDes,
-  omiliaDes,
-  pagingDes,
-  pppsDes, shellDes, voigniersmithDes
-} from '../data/descripts';
+import { useTypewriter } from '../hooks/useTypewriter';
+import { useCommandRegistry } from '../hooks/useCommandRegistry';
+import { useTerminalAnimation } from '../hooks/useTerminalAnimation';
+import { AnimationSpeed } from '../utils/animationSpeed';
+import FileTree from '../components/FileTree';
+import { Layout } from '../components/Layout';
+import { InfoBox } from '../components/InfoBox';
+import { Divider } from '../components/Divider';
+import { TerminalsContainer } from '../components/TerminalsContainer';
+import { start } from '../data/index';
+import { getFileContent } from '../data/fileRegistry';
+import { recordCommand } from '../utils/visitorStats';
+import { recordGlobalCommand } from '../utils/firebase';
+import './terminalController.css';
 
-const TerminalController = (props = {}) => {
+interface TerminalControllerProps {
+  shouldAnimate?: boolean;
+}
+
+const TerminalController = (props: TerminalControllerProps = {}) => {
+  // State
   const [colorMode, setColorMode] = useState(ColorMode.Dark);
-  const [lineData0, setLineData0] = useState([<TerminalOutput />]);
-  const [lineData1, setLineData1] = useState([<TerminalOutput />]);
+  const [lineData0, setLineData0] = useState<React.ReactNode[]>([<TerminalOutput key="initial" />]);
+  const [lineData1, setLineData1] = useState<React.ReactNode[]>([<TerminalOutput key="initial" />]);
   const [curdir, setCurdir] = useState('~');
   const [promptStr, setPromptStr] = useState('$');
-  
-  const [toPrint, setToPrint] = useState(start);
-  const [charToPrint, setCharToPrint] = useState(0);
-  const [lineToPrint, setLineToPrint] = useState(0);
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
 
-  function printLines(flag: Boolean, speed: number) {
-    if (!flag) {
-      if (lineToPrint >= toPrint.length) {
-        return;
-      }
-
-      setTimeout(() => {
-        printLines(true, speed);
-        if (charToPrint < toPrint[lineToPrint].length) {
-          setCharToPrint(charToPrint + 1);
-        } else {
-          setCharToPrint(0);
-          setLineToPrint(lineToPrint + 1);
-        }
-      }, speed);
-      return;
-    }
-
-    let ld;
-    if (charToPrint > 0) {
-      ld = lineData0.slice(0,-1);
-    } else {
-      ld = [...lineData0];
-    }
-
-    const element = toPrint[lineToPrint].substring(0, charToPrint);
-    if (charToPrint === toPrint[lineToPrint].length) {
-      ld.push(<TerminalOutput>{element}</TerminalOutput>)
-    } else {
-      ld.push(<TerminalOutput>{element + "█"}</TerminalOutput>);
-    }
-    setLineData0(ld);
-  }
-
-  function fileCheck(str: string) {
-    const arr = dir[curdir as keyof dir_type];
-    for (let i = 0; i < arr.length; i++) {
-      const element = arr[i];
-      if (str.localeCompare(element) === 0) {
-        return str;
-      }
-    }
-    return;
-  }
-
-  function dirCheck(dirStr: string) {
-    const arr = dir['~' as keyof dir_type];
-
-    for (let i = 0; i < arr.length; i++) {
-      const element = arr[i];
-      if (dirStr.localeCompare(element) === 0) {
-        return dirStr;
-      }
-    }
-
-    return;
-  }
+  // Refs to keep latest values without causing re-renders
+  const curdirRef = useRef(curdir);
+  const promptStrRef = useRef(promptStr);
 
   useEffect(() => {
-    printLines(false, 15);
+    curdirRef.current = curdir;
+  }, [curdir]);
+
+  useEffect(() => {
+    promptStrRef.current = promptStr;
+  }, [promptStr]);
+
+  // Terminal animation: startup + drag interactions
+  // Animations execute sequentially: horizontal first, then vertical
+  const animationSegments = useMemo(() => [
+    {
+      id: 'horizontal-resize',
+      duration: 610,
+      target: 'horizontal' as const,
+      startValue: 100,
+      endValue: 80 // Terminals animate
+    },
+    {
+      id: 'vertical-slide',
+      duration: 610,
+      target: 'vertical' as const,
+      startValue: 0,
+      endValue: 200 // File explorer slides in from left
+    }
+  ], []);
+
+  const animation = useTerminalAnimation({
+    enabled: true,
+    segments: animationSegments,
+    axis: 'y'
   });
 
-  function argParser (input: string) {
-    let ld = [...lineData0];
+  const {
+    isExpanded,
+    horizontalDisplayValue,
+    verticalDisplayValue,
+    verticalDragHandlers
+  } = animation;
+  const fileExplorerAnimating = isExpanded;
 
-    if (input.toLocaleLowerCase().trim() === 'view-source') {
-      window.open('https://github.com/voigniersmith/voigniersmith.github.io', '_blank');
-    } else if (input.toLocaleLowerCase().trim() === 'hello there') {
-      ld.push(<TerminalOutput>{' '}</TerminalOutput>);
-      ld.push(<TerminalOutput>General Kenobi...</TerminalOutput>)
-    } else if (input.toLocaleLowerCase().trim() === 'view-react-docs') {
-      window.open('https://reactjs.org/docs/getting-started.html', '_blank');
-    } else if (input.toLocaleLowerCase().trim() === 'clear') {
-      ld = [];
-      setTimeout(() => {
-        setLineData1([]);
-      }, 2);
-    } else if (input.toLocaleLowerCase().trim() === 'help') {
-      // Reset for pretty
-      ld = [];
+  // Animation state
+  const [animationContent, setAnimationContent] = useState<string[]>([]);
+  const [animationSpeed, setAnimationSpeed] = useState(AnimationSpeed.MEDIUM);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
 
-      setTimeout(() => {
-        setCharToPrint(0);
-        setLineToPrint(0);
-        setToPrint(help);
-        printLines(false, 10);
-      }, 1);
-    } else if (input.substring(0, 4).toLocaleLowerCase().trim() === 'echo') {
-      ld.push(<TerminalOutput>{' '}</TerminalOutput>);
-      ld.push(<TerminalOutput>{input.substring(5)}</TerminalOutput>)
-    } else if (input.toLocaleLowerCase().trim() === 'ls') {
-      ld.push(<TerminalOutput>{' '}</TerminalOutput>);
-      ld.push(<TerminalOutput>{curdir + "/"}</TerminalOutput>);
-      dir[curdir as keyof dir_type].forEach((d) => {
-        ld.push(<TerminalOutput>{"  " + d}</TerminalOutput>);
-      })
-    } else if (input.substring(0,2).toLocaleLowerCase().trim() === 'cd') {
-      const directory = input.substring(3);
-      if (!directory || directory.toLocaleLowerCase().trim() === '.') {
-        // do nothing
-      } else if (directory.toLocaleLowerCase().trim() === '..') {
-        setCurdir('~');
-      } else {
-        const file = dirCheck(directory);
-        if (file) {
-          setCurdir('~/' + directory);
-        } else {
-          ld.push(<TerminalOutput>{' '}</TerminalOutput>);
-          ld.push(<TerminalOutput>cd: no such file or directory</TerminalOutput>)
-        }
-      }
-    } else if (input.toLocaleLowerCase().trim() === 'start') {
-      // Reset for pretty
+  // Typewriter animation hook
+  const { displayLines } = useTypewriter({
+    content: animationContent,
+    speed: animationSpeed,
+    enabled: shouldAnimate
+  });
+
+  // Initialize with startup animation
+  useEffect(() => {
+    if (isExpanded) {
       setLineData0([]);
-
-      setTimeout(() => {
-        setCharToPrint(0);
-        setLineToPrint(0);
-        setToPrint(start);
-        printLines(false, 10);
-      }, 1);
-    } else if (input.toLocaleLowerCase().trim() === 'time') {
-      const d = new Date();
-      let time = d.toISOString();
-      ld.push(<TerminalOutput>{time}</TerminalOutput>)
-    } else if (input.substring(0, 5).toLocaleLowerCase().trim() === 'theme') {
-      const theme = input.substring(6);
-      if (theme.toLocaleLowerCase().trim() === 'light') {
-        setColorMode(ColorMode.Light);
-      } else if (theme.toLocaleLowerCase().trim() === 'dark') {
-        setColorMode(ColorMode.Dark);
-      }
-    } else if (input.toLocaleLowerCase().trim() === 'pwd') {
-      ld.push(<TerminalOutput>{' '}</TerminalOutput>);
-      ld.push(<TerminalOutput>{curdir}</TerminalOutput>);
-    } else if (input.toLocaleLowerCase().trim().substring(0,3) === 'cat') {
-      const file = fileCheck(input.toLocaleLowerCase().substring(3).trim());
-      if (file) {
-        // Reset for pretty
-        ld = [];
-
-        // Ensure update happens w/ timeout
-        setTimeout(() => {
-          setCharToPrint(0);
-          setLineToPrint(0);
-          if (file === "ppps.cpp") {
-            setToPrint(pppsDes);
-          } else if (file === "shell.cpp" || file === "bash42") {
-            setToPrint([...bash42, " ", ...shellDes]);
-          } else if (file === "omilia.js" || file === "omega7") {
-            setToPrint([...omega7, " ", ...omiliaDes]);
-          } else if (file === "mymalloc.c" || file === "floppy19") {
-            setToPrint([...floppy19, " ", ...mymallocDes]);
-          } else if (file === "bugdetect.java" || file === "butterfly19") {
-            setToPrint([...butterfly19, " ", ...bugdetectDes]);
-          } else if (file === "voigniersmith.js") {
-            setToPrint(voigniersmithDes);
-          } else if (file === "paging.c") {
-            setToPrint(pagingDes);
-          } else if (file === "chess.c" || file === "chessboard") {
-            setToPrint([...chessboard, " ", ...chessDes]);
-          } else if (file === "cryptocalc.py") {
-            setToPrint(cryptocalcDes);
-          } else if (file === "moodify.js") {
-            setToPrint(moodifyDes);
-          } else if (file === "xinu.c" || file === "xinu8") {
-            setToPrint([...xinu8]);
-          } else if (file === "resume.txt" || file === "resume") {
-            setToPrint(resume);
-          } else if (file === "me81") {
-            setToPrint(me81);
-          } else if (file === "me41") {
-            setToPrint(me41);
-          } else if (file === "raspberrypi11") {
-            setToPrint(raspberrypi11);
-          }
-          printLines(false, 2);
-        }, 1);
-      } else {
-        ld.push(<TerminalOutput>cat: No such file</TerminalOutput>)
-      }
-    } else if (input.toLocaleLowerCase().trim() === 'whoami') {
-      setCharToPrint(0);
-      setLineToPrint(0);
-      setToPrint(me41);
-      printLines(false, 1);
-    } else if (input.toLocaleLowerCase().substring(0,2).trim() === 'ps') {
-      setPromptStr(input.substring(3));
-      document.getElementsByClassName('react-terminal-input::before')[0]?.setAttribute('content', input.substring(3));
-    } else if (input.toLocaleLowerCase().substring(0,2).trim() === 'ln') {
-      const file = fileCheck(input.toLocaleLowerCase().substring(3).trim());
-      if (file) {
-        // Ensure update happens w/ timeout
-        if (file === "ppps.cpp") {
-          window.open('https://github.com/voigniersmith/CS535FinalProject', '_blank');
-        } else if (file === "shell.cpp" || file === "bash42") {
-          window.open('https://github.com/voigniersmith/Shell', '_blank');
-        } else if (file === "omilia.js" || file === "omega7") {
-          window.open('https://github.com/voigniersmith/omilia', '_blank');
-        } else if (file === "mymalloc.c" || file === "floppy19") {
-          window.open('https://github.com/voigniersmith/myMalloc', '_blank');
-        } else if (file === "bugdetect.java" || file === "butterfly19") {
-          window.open('https://github.com/voigniersmith/clang-bug-detector', '_blank');
-        } else if (file === "voigniersmith.js") {
-          window.open('https://github.com/voigniersmith/voigniersmith.github.io', '_blank');
-        } else if (file === "paging.c") {
-          window.open('https://github.com/voigniersmith/pagingx86', '_blank');
-        } else if (file === "chess.c" || file === "chessboard") {
-          window.open('https://github.com/voigniersmith/parallel_chess', '_blank');
-        } else if (file === "cryptocalc.py") {
-          window.open('https://github.com/voigniersmith/cs555-algorand-mpc', '_blank');
-        } else if (file === "moodify.js") {
-          window.open('https://github.com/nguyldo/moodify', '_blank');
-        } else if (file === "xinu.c" || file === "xinu8") {
-          window.open('https://xinu.cs.purdue.edu', '_blank');
-        } else if (file === "resume.txt" || file === "resume") {
-          window.open('https://docs.google.com/document/d/1EPNoUclm8Qs0Vbad_wvpiwvWjLRynip3JYSporWPdGM/edit?usp=sharing', '_blank');
-        } else if (file === "me81") {
-          window.open('https://www.instagram.com/andrewnook4/', '_blank');
-        } else if (file === "me41") {
-          window.open('https://www.instagram.com/andrewnook4/', '_blank');
-        } else if (file === "raspberrypi11") {
-          window.open('https://www.raspberrypi.org', '_blank');
-        } else if (file === "gmail") {
-          window.location.href = 'mailto:voigniersmith@gmail.com';
-        } else if (file === "school_email") {
-          window.location.href = 'mailto:smit3407@purdue.edu';
-        } else if (file === "instagram") {
-          window.open('https://www.instagram.com/andrewnook4/', '_blank');
-        } else if (file === "github") {
-          window.open('https://github.com/voigniersmith', '_blank');
-        } else if (file === "linkedin") {
-          window.open('https://www.linkedin.com/in/voigniersmith/', '_blank');
-        } else if (file === "README.md") {
-          window.open('https://www.github.com/voigniersmith/voigniersmith.github.io', '_blank');
-        }
-      } else {
-        ld.push(<TerminalOutput>ln: No associated link with file</TerminalOutput>)
-      }
-    } else if (input) {
-      ld.push(<TerminalOutput>{' '}</TerminalOutput>);
-      ld.push(<TerminalOutput>{"command not found: " + input}</TerminalOutput>);
+      setAnimationContent(start);
+      setAnimationSpeed(AnimationSpeed.MEDIUM);
+      setShouldAnimate(true);
     }
-    setLineData0(ld);
+  }, [isExpanded]);
+
+  // File explorer animation runs once and stays - no need to reset
+
+  // Update terminal with animation output
+  useEffect(() => {
+    if (displayLines.length > 0) {
+      const outputs = displayLines.map((line, i) => (
+        <TerminalOutput key={i}>{line}</TerminalOutput>
+      ));
+      setLineData0(outputs);
+    }
+  }, [displayLines]);
+
+  // Command registry callbacks
+  const handleAnimation = useCallback((content: string[], speed: number) => {
+    setShouldAnimate(false);
+    setLineData0([]);
+    setAnimationContent(content);
+    setAnimationSpeed(speed);
+    setTimeout(() => {
+      setShouldAnimate(true);
+    }, 0);
+  }, []);
+
+  const handleStopAnimation = useCallback(() => {
+    setShouldAnimate(false);
+  }, []);
+
+  const handleTheme = useCallback((colorMode: ColorMode) => {
+    setColorMode(colorMode);
+  }, []);
+
+  // Callback to update lineData1 from async commands
+  const handleUpdateLineData = useCallback((updater: (ld: React.ReactNode[]) => React.ReactNode[]) => {
+    setLineData1((prevLd) => updater(prevLd));
+  }, []);
+
+  // Callback to update lineData0 directly (for Terminal 0 output without animation)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleUpdateLineData0 = useCallback((updater: (ld: React.ReactNode[]) => React.ReactNode[]) => {
+    setLineData0((prevLd) => updater(prevLd));
+  }, []);
+
+  // Command registry hook
+  const { executeCommand } = useCommandRegistry({
+    onAnimation: handleAnimation,
+    onCurDir: setCurdir,
+    onPrompt: setPromptStr,
+    onStopAnimation: handleStopAnimation,
+    onTheme: handleTheme,
+    getHistory: () => commandHistory,
+    onUpdateLineData: handleUpdateLineData,
+    onUpdateLineData0: handleUpdateLineData0,
+  });
+
+  // Ref to measure Terminal 0 content height
+  const terminal0Ref = useRef<HTMLDivElement>(null);
+
+  // Handle drag start on horizontal divider
+  const handleHorizontalDividerDragStart = useCallback(() => {
+    // Placeholder for any future drag start logic
+  }, []);
+
+  // Get theme-aware divider colors
+  const getDividerColors = (colorMode: ColorMode) => {
+    const colorMap: { [key in ColorMode]: { normal: string; hover: string } } = {
+      [ColorMode.Dark]: { normal: '#2a2d33', hover: '#3a3d43' },
+      [ColorMode.Light]: { normal: '#d0d0d0', hover: '#b0b0b0' },
+      [ColorMode.Dracula]: { normal: '#44475a', hover: '#6272a4' },
+      [ColorMode.Nord]: { normal: '#3b4252', hover: '#81a1c1' },
+      [ColorMode.Monokai]: { normal: '#3e3d32', hover: '#49483e' },
+      [ColorMode.SolarizedDark]: { normal: '#073642', hover: '#268bd2' },
+      [ColorMode.GruvBox]: { normal: '#3c3836', hover: '#83a598' },
+    };
+    return colorMap[colorMode] || colorMap[ColorMode.Dark];
+  };
+
+  const dividerColors = getDividerColors(colorMode);
+
+  // File selection handler
+  function handleFileSelect(filePath: string) {
+    // Extract filename from full path (e.g., "~/projects/shell.cpp" -> "shell.cpp")
+    const fileName = filePath.split('/').pop() || filePath;
+    const content = getFileContent(fileName);
+
+    if (content) {
+      setAnimationContent(content);
+      setAnimationSpeed(AnimationSpeed.NORMAL);
+      setShouldAnimate(true);
+    }
   }
 
-  function onInput0 (input: string) {
-    let ld = [...lineData0];
-    ld.push(<TerminalInput>{promptStr + ' ' + input}</TerminalInput>);
-    
-    argParser(input);
+  // Terminal input handlers
+  const onInput1 = useCallback((input: string) => {
+    if (input.trim()) {
+      setCommandHistory((prev) => [...prev, input]);
+      recordCommand();
+      recordGlobalCommand(input);
+    }
+    setLineData1((prevLineData1) => {
+      const ld = [...prevLineData1];
+      ld.push(<TerminalInput key={Date.now()}>{promptStr + ' ' + input}</TerminalInput>);
+      const result = executeCommand(input, ld, curdir);
+      return result;
+    });
+  }, [executeCommand, promptStr, curdir]);
 
-    setLineData0(ld);
-  }
 
-  function onInput1 (input: string) {
-    let ld = [...lineData1];
-    ld.push(<TerminalInput>{promptStr + ' ' + input}</TerminalInput>);
-    
-    argParser(input);
-
-    setLineData1(ld);
-  }
+  const themeClassName = (() => {
+    switch (colorMode) {
+      case ColorMode.Light: return 'theme-light';
+      case ColorMode.Dracula: return 'theme-dracula';
+      case ColorMode.Nord: return 'theme-nord';
+      case ColorMode.Monokai: return 'theme-monokai';
+      case ColorMode.SolarizedDark: return 'theme-solarized-dark';
+      case ColorMode.GruvBox: return 'theme-gruvbox';
+      default: return '';
+    }
+  })();
 
   return (
-    <div className="container" >
-      <Terminal name='React Terminal UI 0' colorMode={ colorMode }  onInput={ onInput0 } num={0} prompt={promptStr} curdir={curdir}>
-        {lineData0}
-      </Terminal>
-      <Terminal name='React Terminal UI 1' colorMode={ colorMode }  onInput={ onInput1 } num={1} prompt={promptStr} curdir={curdir}>
-        {lineData1}
-      </Terminal>
-    </div>
+    <Layout
+      colorMode={colorMode}
+      themeClassName={themeClassName}
+      sidebar={
+        fileExplorerAnimating && (
+          <InfoBox
+            style={{
+              width: `${verticalDisplayValue}px`,
+              height: '100%',
+              pointerEvents: 'auto'
+            }}
+          >
+            <FileTree currentDir={curdir} onFileSelect={handleFileSelect} colorMode={colorMode} />
+          </InfoBox>
+        )
+      }
+      sidebarDivider={
+        fileExplorerAnimating && (
+          <Divider
+            axis="x"
+            isDraggable={true}
+            onMouseDown={verticalDragHandlers.onMouseDown}
+            colors={dividerColors}
+          />
+        )
+      }
+      main={
+        <div
+          className={isExpanded ? 'terminals-container-expanding' : 'terminals-container-hidden'}
+          style={{ display: 'flex', flex: isExpanded ? 1 : 0, overflow: 'hidden' }}
+        >
+          {isExpanded && (
+            <TerminalsContainer
+              colorMode={colorMode}
+              dividerColors={dividerColors}
+              onDividerDragStart={handleHorizontalDividerDragStart}
+              displayValue={horizontalDisplayValue}
+              dragHandlers={animation.horizontalDragHandlers}
+              terminal0={
+                <Terminal
+                  ref={terminal0Ref}
+                  name="TERMINAL 0"
+                  colorMode={colorMode}
+                  num={0}
+                  prompt={promptStr}
+                  curdir={curdir}
+                  readOnly={true}
+                  style={{
+                    height: '100%',
+                    overflow: 'auto'
+                  }}
+                >
+                  {lineData0}
+                </Terminal>
+              }
+              terminal1={
+                <Terminal
+                  name="TERMINAL 1"
+                  colorMode={colorMode}
+                  onInput={onInput1}
+                  num={1}
+                  prompt={promptStr}
+                  curdir={curdir}
+                  style={{ height: '100%', overflow: 'auto' }}
+                >
+                  {lineData1}
+                </Terminal>
+              }
+            />
+          )}
+        </div>
+      }
+    />
   );
 };
 

@@ -12,7 +12,6 @@ export interface VisitorStats {
 }
 
 const STATS_KEY = 'visitor_stats';
-const SESSION_KEY = 'current_session_id';
 
 /**
  * Initialize or get visitor stats

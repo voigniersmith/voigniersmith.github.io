@@ -7,8 +7,6 @@
  */
 
 import {
-  help,
-  start,
   floppy19,
   bash42,
   butterfly19,

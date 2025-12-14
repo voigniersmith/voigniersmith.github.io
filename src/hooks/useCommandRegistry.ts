@@ -74,21 +74,14 @@ export function useCommandRegistry(callbacks: CommandCallbacks) {
     []
   );
 
-  const dirCheck = useCallback(
-    (dirStr: string): string | undefined => {
-      const arr = dir['~' as keyof dir_type];
-      return arr.find(element => element.localeCompare(dirStr) === 0);
-    },
-    []
-  );
-
   // Helper to create terminal output nodes
   const createOutput = (text: string) => {
     return React.createElement(TerminalOutput, { key: Math.random() }, text);
   };
 
   // Define all commands - memoized to prevent recreation
-  const commands: Command[] = React.useMemo(() => [
+  const commands: Command[] = React.useMemo(() => {
+    return [
     {
       match: (input) => input.toLocaleLowerCase().trim() === 'view-source',
       description: "'view-source': navigate to the React Terminal UI github source",
@@ -518,7 +511,8 @@ export function useCommandRegistry(callbacks: CommandCallbacks) {
         return ld;
       },
     },
-  ], []);
+    ];
+  }, [fileCheck]);
 
   /**
    * Helper function to execute async commands with duplicate prevention

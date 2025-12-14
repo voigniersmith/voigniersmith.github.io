@@ -8,6 +8,7 @@ import { createFileCommands } from '../commands/fileCommands';
 import { createLinkCommands } from '../commands/linkCommands';
 import { createInfoCommands } from '../commands/infoCommands';
 import { createStatsCommands } from '../commands/statsCommands';
+import { createGameCommands } from '../commands/gameCommands';
 
 interface CommandCallbacks {
   onAnimation: (content: string[], speed: number) => void;
@@ -132,6 +133,7 @@ export function useCommandRegistry(callbacks: CommandCallbacks) {
       ...createLinkCommands(commandDeps),
       ...createInfoCommands(commandDeps),
       ...createStatsCommands(commandDeps),
+      ...createGameCommands(commandDeps),
     ];
   }, [createOutput, fileCheck, executeAsyncCommand]);
 

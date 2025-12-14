@@ -80,13 +80,11 @@ export function createStatsCommands(deps: CommandDeps): Command[] {
           'fetching statistics...',
           async () => {
             try {
-              const [githubStats, visitorStats] = await Promise.all([
-                fetchGitHubStats(),
-                Promise.resolve(getStats())
-              ]);
+              const githubStats = await fetchGitHubStats();
+              const visitorStats = getStats();
               return { githubStats, visitorStats };
             } catch (error) {
-              console.error('Error fetching stats data:', error);
+              console.error('Error fetching stats:', error);
               return { githubStats: null, visitorStats: getStats() };
             }
           },
@@ -106,6 +104,9 @@ export function createStatsCommands(deps: CommandDeps): Command[] {
               statsOutput.push(`  Open Issues:  ${githubStats.openIssues}`);
               statsOutput.push(`  Language:     ${githubStats.language}`);
               statsOutput.push(`  Last Update:  ${formatDate(githubStats.lastUpdate)}`);
+              statsOutput.push('');
+            } else {
+              statsOutput.push('(GitHub stats unavailable)');
               statsOutput.push('');
             }
 

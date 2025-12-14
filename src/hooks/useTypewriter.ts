@@ -47,7 +47,7 @@ export function useTypewriter({
       return;
     }
 
-    // Reset position
+    // Reset position only when animation is starting
     positionRef.current = { lineIndex: 0, charIndex: 0 };
     setCurrentLineIndex(0);
     setCurrentCharIndex(0);
@@ -89,8 +89,9 @@ export function useTypewriter({
           // Character-by-character mode
           const currentLine = content[pos.lineIndex];
 
-          if (!currentLine) {
+          if (currentLine === undefined) {
             // Done animating
+            console.log('[animate] Done - reached end of content');
             shouldContinue = false;
             setIsAnimating(false);
           } else {

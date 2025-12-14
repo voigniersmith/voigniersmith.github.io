@@ -7,52 +7,167 @@
  */
 
  .react-terminal-wrapper {
-    --terminal-height: 80vh;
-    --fontsize: 16px;
+    --terminal-height: 50vh;
     --background-light: #ddd;
     --color-light: #1a1e24
 
-    width: 100%;
-    background: #252a33;
-    color: #eee;
-    font-size: var(--fontsize);
+    width: 100% !important;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: var(--fontsize, 16px);
     font-family: "Lucida Console", Courier, monospace;
-    /* border-radius: 4px; */
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
     position: relative;
     -webkit-box-sizing: border-box;
             box-sizing: border-box;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-width: none !important;
+    flex-shrink: 0;
   }
-  
+
   .react-terminal-0 {
-    height: var(--terminal-height);
+    flex: 1;
     overflow: auto;
     display: flex;
     flex-direction: column;
-    border-bottom: 1px solid white;
+    padding: 15px;
+    border-bottom: 1px solid #2a2e36;
+    background: #1e1e1e !important;
   }
 
   .react-terminal-1 {
-    height: calc(100vh - var(--terminal-height));
+    flex: 1;
     overflow: auto;
     display: flex;
     flex-direction: column;
+    padding: 15px;
+    background: #1e1e1e !important;
   }
 
   .react-terminal-2 {
     text-align: center;
-    height: 100vh;
+    height: 100%;
+    width: 100%;
     overflow: auto;
     display: flex;
     flex-direction: column;
   }
   
+  /* Dark theme (default VS Code dark) */
+  .react-terminal-wrapper.react-terminal-dark {
+    background: #1e1e1e;
+    color: #d4d4d4;
+  }
+
+  .react-terminal-dark .react-terminal-0,
+  .react-terminal-dark .react-terminal-1 {
+    background: #1e1e1e !important;
+  }
+
+  .react-terminal-dark .react-terminal-input {
+    color: #a2a2a2;
+  }
+
+  /* Light theme */
   .react-terminal-wrapper.react-terminal-light {
     background: var(--background-light);
     color: var(--color-light);
   }
-  
+
+  .react-terminal-light .react-terminal-0,
+  .react-terminal-light .react-terminal-1 {
+    background: #ddd !important;
+  }
+
+  .react-terminal-light .react-terminal-input {
+    color: #666;
+  }
+
+  /* Dracula theme */
+  .react-terminal-wrapper.react-terminal-dracula {
+    background: #282a36;
+    color: #f8f8f2;
+  }
+
+  .react-terminal-dracula .react-terminal-0,
+  .react-terminal-dracula .react-terminal-1 {
+    background: #282a36 !important;
+    border-color: #44475a;
+  }
+
+  .react-terminal-dracula .react-terminal-input {
+    color: #6272a4;
+  }
+
+  /* Nord theme (cool blues) */
+  .react-terminal-wrapper.react-terminal-nord {
+    background: #2e3440;
+    color: #eceff4;
+  }
+
+  .react-terminal-nord .react-terminal-0,
+  .react-terminal-nord .react-terminal-1 {
+    background: #2e3440 !important;
+    border-color: #3b4252;
+  }
+
+  .react-terminal-nord .react-terminal-input {
+    color: #81a1c1;
+  }
+
+  /* Monokai theme */
+  .react-terminal-wrapper.react-terminal-monokai {
+    background: #272822;
+    color: #f8f8f2;
+  }
+
+  .react-terminal-monokai .react-terminal-0,
+  .react-terminal-monokai .react-terminal-1 {
+    background: #272822 !important;
+    border-color: #3e3d32;
+  }
+
+  .react-terminal-monokai .react-terminal-input {
+    color: #75715e;
+  }
+
+  /* Solarized Dark theme */
+  .react-terminal-wrapper.react-terminal-solarized-dark {
+    background: #002b36;
+    color: #839496;
+  }
+
+  .react-terminal-solarized-dark .react-terminal-0,
+  .react-terminal-solarized-dark .react-terminal-1 {
+    background: #002b36 !important;
+    border-color: #073642;
+  }
+
+  .react-terminal-solarized-dark .react-terminal-input {
+    color: #586e75;
+  }
+
+  /* Gruvbox theme (warm, earthy) */
+  .react-terminal-wrapper.react-terminal-gruvbox {
+    background: #282828;
+    color: #ebdbb2;
+  }
+
+  .react-terminal-gruvbox .react-terminal-0,
+  .react-terminal-gruvbox .react-terminal-1 {
+    background: #282828 !important;
+    border-color: #3c3836;
+  }
+
+  .react-terminal-gruvbox .react-terminal-input {
+    color: #928374;
+  }
+
   .react-terminal-wrapper:before {
     content: '';
     position: absolute;

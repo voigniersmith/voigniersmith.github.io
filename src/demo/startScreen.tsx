@@ -1,25 +1,18 @@
-import { me81 } from "../data";
-import Terminal, { TerminalOutput } from "../terminal/terminal";
+import TerminalController from "./terminalController";
 
-function printMe () {
-  const arr = [];
-  for (let i = 0; i < me81.length - 1; i++) {
-    arr.push(<TerminalOutput>{me81[i]}</TerminalOutput>)
-  }
-  return arr;
+interface StartScreenProps {
+  isExpanding?: boolean;
 }
 
-const StartScreen = () => {
+const StartScreen = (props: StartScreenProps) => {
+  const isExpanding = props.isExpanding ?? false;
+
   return (
-    <div>
-      <div className="container" >
-        <Terminal name='React Terminal UI 0' num={2} prompt={''}>
-          <p />
-          { printMe() }
-          <h1>Hello, World!</h1>
-          <p>Press Any Key to Start</p>
-        </Terminal>
-      </div>
+    <div style={{
+      width: '100%',
+      height: '100%'
+    }}>
+      <TerminalController shouldAnimate={isExpanding} />
     </div>
   );
 };

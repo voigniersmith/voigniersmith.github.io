@@ -1,12 +1,18 @@
-import { useState, useEffect, useRef, KeyboardEvent, ReactNode } from 'react';
-import { commands, dir, dir_type } from '../data';
+import { useState, useEffect, useRef, ReactNode, CSSProperties, forwardRef } from 'react';
+import { useTerminalInput } from '../hooks/useTerminalInput';
 import TerminalInput from './linetypes/TerminalInput';
 import TerminalOutput from './linetypes/TerminalOutput';
 import './style.css';
 
+
 export enum ColorMode {
-  Light,
-  Dark
+  Dark = 0,           // Default dark theme (VS Code dark)
+  Light = 1,          // Light theme
+  Dracula = 2,        // Dracula theme
+  Nord = 3,           // Nord theme (cool blues)
+  Monokai = 4,        // Monokai theme
+  SolarizedDark = 5,  // Solarized dark
+  GruvBox = 6,        // Gruvbox theme (warm, earthy)
 }
 
 export interface Props {
@@ -17,20 +23,22 @@ export interface Props {
   onInput?: ((input: string) => void) | null | undefined,
   num: number,
   curdir?: string,
+  style?: CSSProperties,
+  onGetHistory?: () => string[];
+  readOnly?: boolean;
 }
 
-const Terminal = ({name, colorMode, onInput, prompt, children, num, curdir}: Props) => {
+const Terminal = forwardRef<HTMLDivElement, Props>(({name, colorMode, onInput, prompt, children, num, curdir, style, onGetHistory, readOnly = false}: Props, ref) => {
   /* HOOKS */
-  const [caretPosition, setCaretPosition] = useState(0);
-  const [caretChar, setCaretChar] = useState(" ");
-  const [commandsHistory, setCommandsHistory] = useState([] as string []);
-  const [historyPointer, setHistoryPointer] = useState(0);
-  const [caretTextBefore, setCaretTextBefore] = useState("");
-  const [caretTextAfter, setCaretTextAfter] = useState("");
+  const terminalInput = useTerminalInput({
+    onSubmit: onInput,
+    focus: !readOnly,
+    curdir: curdir || '~',
+  });
+
   const [promptStr, setPromptStr] = useState(prompt || '$');
-  
+
   /* CONSTS */
-  const focus = (num !== 0) ? true : false;
   const terminalNum = "react-terminal-" + num;
   const scrollIntoViewRef = useRef<HTMLDivElement>(null)
 
@@ -40,250 +48,80 @@ const Terminal = ({name, colorMode, onInput, prompt, children, num, curdir}: Pro
     scrollIntoViewRef?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [children]);
 
-  // Binding Event Listeners
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyboardInput as any);
-    return () => {
-      // Unbind the event listener on clean up
-      document.removeEventListener("keydown", handleKeyboardInput as any);
-    };
-  });
-
-  // Set this up so focus is based on event.
-  // useEffect(() => {
-  //   if (onInput == null) {
-  //     return;
-  //   }
-  //   // keep reference to listeners so we can perform cleanup
-  //   const elListeners: { terminalEl: Element; listener: EventListenerOrEventListenerObject }[] = [];
-  //   for (const terminalEl of document.getElementsByClassName('react-terminal-wrapper')) {
-  //     const listener = (e: Event) => {
-  //       if (terminalEl.contains(e.target as Node) && terminalEl.contains(document.getElementsByClassName(terminalNum)[0])) {
-  //         setFocus(true);
-  //       } else {
-  //         setFocus(false);
-  //       }
-  //     }
-  //     terminalEl?.addEventListener('click', listener);
-  //     elListeners.push({ terminalEl, listener });
-  //   }
-  //   return function cleanup () {
-  //     elListeners.forEach(elListener => {
-  //       elListener.terminalEl.removeEventListener('click', elListener.listener);
-  //     });
-  //   }
-  // }, [onInput, terminalNum]);
-
   // Ensure Prompt is Updated
   useEffect(() => {
     setPromptStr(prompt || '$');
   }, [prompt])
 
-  /* FUNCTIONS */
-  // Append command to history
-  function appendCommand(command: string) {
-    if (!command) {
-      return;
-    }
-
-    setCommandsHistory(commandsHistory.concat(command));
-    setHistoryPointer(historyPointer + 1);
-  }
-
-  // Get last command
-  function getPreviousCommand() {
-    if (historyPointer === 0) {
-      return commandsHistory[0];
-    }
-
-    const command = commandsHistory[historyPointer - 1];
-    if (historyPointer > 0) {
-      setHistoryPointer(historyPointer - 1);
-    }
-
-    return command;
-  }
-
-  // Get next command
-  function getNextCommand() {
-    if (historyPointer < commandsHistory.length) {
-      const command = commandsHistory[historyPointer + 1];
-      setHistoryPointer(historyPointer + 1);
-      return command;
-    }
-    return "";
-  }
-
-  /* HANDLERS */
-  // Keyboard Input Handler
-  const handleKeyboardInput = (event: KeyboardEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    const key = event.key;
-
-    if (!focus) {
-      return;
-    }
-
-    // Line Finished
-    if (onInput != null && key === "Enter") {
-      // Update Terminal Controller
-      onInput((caretTextBefore + caretChar + caretTextAfter).trim());
-      
-      // Add to history
-      appendCommand((caretTextBefore + caretChar + caretTextAfter).trim());
-      
-      // Update Visible Line
-      setCaretChar(" ");
-      setCaretTextBefore("");
-      setCaretTextAfter("");
-      setCaretPosition(0);
-      return;
-    }
-
-    // Control Keys
-    if (key === "Tab") {
-      if (caretTextBefore.split(" ").length > 1) {
-        const directory = dir[curdir as keyof dir_type];
-        for (let i = 0; i < directory.length; i++) {
-          if (caretTextBefore.split(" ")[1].localeCompare(directory[i].substring(0, caretTextBefore.split(" ")[1].length)) === 0) {
-            setCaretTextBefore(caretTextBefore.split(" ")[0] + " " + directory[i]);
-            setCaretPosition(directory[i].length);
-            return;
-          }
-        }
-      } else if (caretTextBefore.split(" ").length === 1) {
-        const commandList = commands;
-        for (let i = 0; i < commandList.length; i++) {
-          if (caretTextBefore.localeCompare(commandList[i].substring(0, caretTextBefore.length)) === 0) {
-            setCaretTextBefore(commandList[i]);
-            setCaretPosition(commandList[i].length);
-            return;
-          }
-        }
-      }
-    } else if (key === "Backspace") {
-      setCaretTextBefore(caretTextBefore.slice(0, -1));
-      if (caretTextBefore.length !== 0) setCaretPosition(caretPosition - 1);
-    } else if (key === "ArrowUp") {
-      // Does history exist?
-      if (commandsHistory.length === 0) {
-        return;
-      }
-
-      // Update Line to History
-      const command = getPreviousCommand();
-      setCaretTextBefore(command);
-      setCaretTextAfter("");
-
-      // Fix Caret Location
-      setCaretPosition(command.length);
-      setCaretChar(" ");
-    } else if (key === "ArrowDown") {
-      // Make sure can traverese
-      if (historyPointer === commandsHistory.length) {
-        return;
-      }
-
-      // Update Line with History
-      const command = getNextCommand();
-      setCaretTextBefore(command);
-      setCaretTextAfter("");
-
-      // Fix Caret Location
-      setCaretChar(" ");
-      if (command) {
-        setCaretPosition(command.length);
-      } else {
-        setCaretTextBefore("");
-        setCaretPosition(0);
-      }
-    } else if (key === "ArrowLeft") {
-      if (caretPosition > 0) {
-        setCaretPosition(caretPosition - 1);
-      } else {
-        return;
-      }
-
-      setCaretTextAfter(caretChar + caretTextAfter);  
-      setCaretChar(caretTextBefore.substring(caretTextBefore.length - 1));
-      setCaretTextBefore(caretTextBefore.slice(0, -1));
-    } else if (key === "ArrowRight") {      
-      if (caretTextAfter && caretPosition < (caretTextBefore.length + (caretTextAfter.length))) {
-        setCaretPosition(caretPosition + 1);
-      } else {
-        return;
-      }
-      
-      setCaretTextBefore(caretTextBefore + caretChar);
-      setCaretChar(caretTextAfter.substring(0, 1));
-      setCaretTextAfter(caretTextAfter.substring(1));
-    } else if ((event.metaKey || event.ctrlKey) && key.toLowerCase() === "v") {
-      navigator.clipboard.readText()
-      .then(pastedText => {
-        setCaretTextBefore(caretTextBefore + pastedText);
-        setCaretPosition(caretPosition + pastedText.length);
-      });
-    } else if ((event.metaKey || event.ctrlKey) && key.toLowerCase() === "c") {
-      const w = window.getSelection();
-      if (w) {
-        const selectedText = w.toString();
-        navigator.clipboard.writeText(selectedText)
-        .then(() => {
-          setCaretTextBefore(caretTextBefore);
-          setCaretTextAfter(caretTextAfter);
-          setCaretPosition(caretPosition);
-        });
-      }
-    } else {
-      if (key && key.length === 1) {
-        setCaretPosition(caretPosition + 1);
-        setCaretTextBefore(caretTextBefore + key);
-      }
-    }
-  }
-
   // Theme State
   const classes = ['react-terminal-wrapper'];
-  if (colorMode === ColorMode.Light) {
-    classes.push('react-terminal-light');
+  const themeNames: { [key in ColorMode]: string } = {
+    [ColorMode.Dark]: 'react-terminal-dark',
+    [ColorMode.Light]: 'react-terminal-light',
+    [ColorMode.Dracula]: 'react-terminal-dracula',
+    [ColorMode.Nord]: 'react-terminal-nord',
+    [ColorMode.Monokai]: 'react-terminal-monokai',
+    [ColorMode.SolarizedDark]: 'react-terminal-solarized-dark',
+    [ColorMode.GruvBox]: 'react-terminal-gruvbox',
+  };
+  if (colorMode !== undefined && colorMode in themeNames) {
+    classes.push(themeNames[colorMode as ColorMode]);
   }
 
   // New Input Component
   return (
-    <div className={ classes.join(' ') } data-terminal-name={ name }>
-      <div className={terminalNum}>
-        {children}
-        
-        {
-          focus ? (
-            <div className='react-terminal-line'>
-              <span style={{ color: 'white', }}>{promptStr + " "}</span>
+    <div ref={ref} className={ classes.join(' ') } data-terminal-name={ name } style={style}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Scrollable output section */}
+        <div className={terminalNum} style={{ flex: '1 1 auto', overflow: 'auto' }}>
+          {children}
+          <div ref={ scrollIntoViewRef }></div>
+        </div>
 
-              <span className='preWhiteSpace'>{caretTextBefore}</span>
+        {/* Sticky input section */}
+        {!readOnly ? (
+          <div className='react-terminal-line' style={{ flexShrink: 0, paddingLeft: '12px', paddingRight: '12px' }}>
+            <span style={{ color: 'white', }}>{promptStr + " "}</span>
 
-              <pre className='caret-block'>
-                <span>{caretChar}</span>
-              </pre>
+            <span className='preWhiteSpace'>{terminalInput.caretTextBefore}</span>
 
-              <span className='preWhiteSpace'>{caretTextAfter}</span>
-            </div>
-          ) : (
-            <div className='react-terminal-line'>
-              {/* <span style={{ color: 'white', }}>{promptStr + " "}</span>
+            <pre className='caret-block'>
+              <span>{terminalInput.caretChar}</span>
+            </pre>
 
-              <span className='preWhiteSpace'>{caretTextBefore}</span>
-              <span>{caretChar}</span>
-              <span className='preWhiteSpace'>{caretTextAfter}</span> */}
-            </div>
-          )
-        }
+            <span className='preWhiteSpace'>{terminalInput.caretTextAfter}</span>
+          </div>
+        ) : (
+          <div className='react-terminal-line' style={{ flexShrink: 0, paddingLeft: '12px', paddingRight: '12px' }}>
+          </div>
+        )}
 
-        <div ref={ scrollIntoViewRef }></div>
+        {/* Footer with terminal name */}
+        {name && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: '28px',
+            backgroundColor: '#0d0f12',
+            borderTop: '1px solid #2a2e36',
+            paddingLeft: '12px',
+            paddingRight: '12px',
+            fontSize: '1em',
+            color: '#888',
+            fontFamily: '"Lucida Console", Courier, monospace',
+            flexShrink: 0
+          }}>
+            <span>│ {name}</span>
+            {readOnly && <span>[RO]</span>}
+          </div>
+        )}
       </div>
-
     </div>
   );
-}
+});
+
+Terminal.displayName = 'Terminal';
 
 export { TerminalInput, TerminalOutput };
 export default Terminal;

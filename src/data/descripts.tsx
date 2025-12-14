@@ -15,6 +15,9 @@ const commands = [
     "ps",
     "start",
     "time",
+    "stats",
+    "global-stats",
+    "history",
 ];
 
 const help = [
@@ -26,12 +29,15 @@ const help = [
     "'cd [dir_name]': change directory",
     "'clear': clear the terminal",
     "'echo [str_to_echo]': echo following string",
+    "'global-stats': show aggregate visitor statistics",
     "'help': display this page",
+    "'history': show command history",
     "'ln [file_name]': opens appropriate url for file",
     "'ls': list contents of current directory",
     "'ps [string_prompt]': set prompt string",
     "'pwd': print working directory",
     "'start': show the start message",
+    "'stats': show your personal session statistics",
     "'theme [type]': change theme [light, dark]",
     "'time': display ISO time",
     "'view-react-docs': navigate to the react docs",

@@ -78,8 +78,19 @@ export function createStatsCommands(deps: CommandDeps): Command[] {
         executeAsyncCommand(
           'stats',
           'fetching statistics...',
-          () => Promise.all([fetchGitHubStats(), Promise.resolve(getStats())]),
-          ([githubStats, visitorStats]) => {
+          async () => {
+            try {
+              const [githubStats, visitorStats] = await Promise.all([
+                fetchGitHubStats(),
+                Promise.resolve(getStats())
+              ]);
+              return { githubStats, visitorStats };
+            } catch (error) {
+              console.error('Error fetching stats data:', error);
+              return { githubStats: null, visitorStats: getStats() };
+            }
+          },
+          ({ githubStats, visitorStats }) => {
             const statsOutput: string[] = [];
             statsOutput.push('');
             statsOutput.push('═════════════════════════════════════════');

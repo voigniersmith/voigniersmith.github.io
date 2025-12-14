@@ -73,12 +73,33 @@ export function useCommandRegistry(callbacks: CommandCallbacks) {
       if (!pendingCommandsRef.current.has(commandName)) {
         pendingCommandsRef.current.add(commandName);
 
+        // Spinner animation characters
+        const spinnerChars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+        let spinnerIndex = 0;
+
+        // Start spinner animation in the terminal
+        const spinnerInterval = setInterval(() => {
+          const spinnerChar = spinnerChars[spinnerIndex % spinnerChars.length];
+          const animatedMessage = `${fetchingMessage} ${spinnerChar}`;
+          onUpdateLineDataRef.current?.((ld) => {
+            const updated = [...ld];
+            if (updated.length > 0) {
+              // Update the last line (the loading message) with the spinner
+              updated[updated.length - 1] = createOutput(animatedMessage);
+            }
+            return updated;
+          });
+          spinnerIndex++;
+        }, 100);
+
         (async () => {
           try {
             const data = await fetchFn();
+            clearInterval(spinnerInterval);
             const outputLines = buildOutputFn(data);
             displayFn(outputLines);
           } catch (error) {
+            clearInterval(spinnerInterval);
             console.error(`Error executing ${commandName}:`, error);
           } finally {
             pendingCommandsRef.current.delete(commandName);
@@ -86,7 +107,7 @@ export function useCommandRegistry(callbacks: CommandCallbacks) {
         })();
       }
     },
-    []
+    [createOutput, onUpdateLineDataRef]
   );
 
   // Define all commands - memoized to prevent recreation

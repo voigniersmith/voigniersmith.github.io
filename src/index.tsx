@@ -15,15 +15,8 @@ const updateFontSize = () => {
   const calculatedSize = viewportHeight / (targetLines * lineHeight);
   const fontSize = Math.max(12, Math.min(calculatedSize, 20));
 
-  console.log(`Font sizing: viewport=${viewportHeight}px, calculated=${calculatedSize.toFixed(2)}px, final=${fontSize.toFixed(2)}px`);
-
   document.documentElement.style.fontSize = `${fontSize}px`;
-  // Also update the terminal CSS variable so it respects responsive sizing
   document.documentElement.style.setProperty('--fontsize', `${fontSize}px`);
-
-  // Debug: verify the values were set
-  const htmlElement = document.documentElement;
-  console.log(`Applied: font-size=${htmlElement.style.fontSize}, --fontsize=${htmlElement.style.getPropertyValue('--fontsize')}`);
 };
 
 // Set initial font size
@@ -42,7 +35,4 @@ root.render(
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

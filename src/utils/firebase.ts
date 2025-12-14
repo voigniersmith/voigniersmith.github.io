@@ -91,16 +91,13 @@ export async function fetchGlobalStats() {
   try {
     const database = await getDatabase();
     if (!database) {
-      console.log('Firebase database not initialized');
       return null;
     }
 
     const { ref, get } = await import('firebase/database');
 
     const snapshot = await get(ref(database, 'stats'));
-    console.log('Firebase snapshot exists:', snapshot.exists());
     if (snapshot.exists()) {
-      console.log('Global stats:', snapshot.val());
       return snapshot.val();
     }
   } catch (error) {

@@ -75,7 +75,6 @@ export function useDraggable({
 
       const container = document.querySelector(containerSelector) as HTMLElement;
       if (!container) {
-        console.log('Container not found with selector:', containerSelector);
         return;
       }
 
@@ -95,7 +94,6 @@ export function useDraggable({
 
       // Clamp and update
       const clampedValue = clampValue(newValue);
-      console.log('Dragging:', { axis, rawValue: newValue, clamped: clampedValue, isDragging: isDraggingRef.current, containerHeight: containerRect.height, containerTop: containerRect.top, clientY: e.clientY });
       setValue(clampedValue);
       onValueChange?.(clampedValue);
     },
@@ -110,10 +108,8 @@ export function useDraggable({
   // Handle mouse down - start drag
   const handleMouseDown = useCallback(() => {
     if (!isEnabled) {
-      console.log('Drag not enabled');
       return;
     }
-    console.log('Starting drag, isEnabled:', isEnabled);
     setIsDragging(true);
   }, [isEnabled]);
 

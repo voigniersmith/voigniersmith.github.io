@@ -78,29 +78,5 @@ export function createGameCommands(deps: CommandDeps): Command[] {
         return ld;
       },
     },
-    {
-      match: (input) => input.toLocaleLowerCase().trim() === 'hangman',
-      description: "'hangman': play a game of hangman",
-      execute: (input, ld) => {
-        const words = [
-          'javascript', 'typescript', 'react', 'nodejs', 'developer',
-          'algorithm', 'function', 'variable', 'terminal', 'computer',
-          'network', 'database', 'framework', 'library', 'programming'
-        ];
-
-        const word = words[Math.floor(Math.random() * words.length)];
-        const guessedLetters = new Set<string>();
-
-        ld.push(createOutput(''));
-        ld.push(createOutput('Hangman Game'));
-        ld.push(createOutput(''));
-        ld.push(createOutput(`Word: ${word.split('').map(c => guessedLetters.has(c) ? c : '_').join(' ')}`));
-        ld.push(createOutput(''));
-        ld.push(createOutput('Usage: hangman guess [letter]'));
-        ld.push(createOutput('Example: hangman guess e'));
-        ld.push(createOutput(''));
-        return ld;
-      },
-    },
   ];
 }

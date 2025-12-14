@@ -68,6 +68,56 @@ export async function fetchGitHubStats(): Promise<GitHubRepoStats | null> {
 }
 
 /**
+ * Fetch all user repositories with stars and forks
+ */
+export interface PortfolioRepo {
+  name: string;
+  stars: number;
+  forks: number;
+}
+
+export async function fetchUserPortfolioRepos(): Promise<PortfolioRepo[]> {
+  try {
+    // Check cache first (cache for 2 hours)
+    const cached = localStorage.getItem('portfolio_repos_cache');
+    if (cached) {
+      const { data, timestamp } = JSON.parse(cached);
+      const twoHoursAgo = Date.now() - 2 * 60 * 60 * 1000;
+      if (timestamp > twoHoursAgo) {
+        return data;
+      }
+    }
+
+    const response = await fetch(
+      `${GITHUB_API_BASE}/users/${REPO_OWNER}/repos?sort=stars&per_page=100`
+    );
+
+    if (!response.ok) {
+      console.warn('Failed to fetch portfolio repos:', response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    const repos: PortfolioRepo[] = data.map((repo: any) => ({
+      name: repo.name,
+      stars: repo.stargazers_count || 0,
+      forks: repo.forks_count || 0,
+    }));
+
+    // Cache the results
+    localStorage.setItem(
+      'portfolio_repos_cache',
+      JSON.stringify({ data: repos, timestamp: Date.now() })
+    );
+
+    return repos;
+  } catch (error) {
+    console.warn('Error fetching portfolio repos:', error);
+    return [];
+  }
+}
+
+/**
  * Format date string to readable format
  */
 export function formatDate(dateString: string): string {

@@ -1,5 +1,5 @@
 import { Command, CommandDeps } from './types';
-import { fetchGitHubStats, formatDate } from '../utils/githubApi';
+import { fetchGitHubStats, formatDate, fetchUserPortfolioRepos, PortfolioRepo } from '../utils/githubApi';
 import { getStats, formatStatsDate } from '../utils/visitorStats';
 import { fetchGlobalStats } from '../utils/firebase';
 import { AnimationSpeed } from '../utils/animationSpeed';
@@ -17,31 +17,75 @@ export function createStatsCommands(deps: CommandDeps): Command[] {
         executeAsyncCommand(
           'global-stats',
           'fetching global statistics...',
-          () => fetchGlobalStats(),
-          (globalStats) => {
+          async () => {
+            const [globalStats, repos] = await Promise.all([
+              fetchGlobalStats(),
+              fetchUserPortfolioRepos(),
+            ]);
+            return { globalStats, repos };
+          },
+          ({ globalStats, repos }) => {
             const statsLines: string[] = [];
+            const now = new Date();
+            const timeStr = now.toLocaleString('en-US', {
+              month: '2-digit',
+              day: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+            });
+
             statsLines.push('');
-            statsLines.push('═════════════════════════════════════════');
-            statsLines.push('      GLOBAL PORTFOLIO STATISTICS');
-            statsLines.push('═════════════════════════════════════════');
+            statsLines.push('GLOBAL STATISTICS'.padEnd(50) + `Last Updated: ${timeStr}`);
+            statsLines.push('═'.repeat(70));
             statsLines.push('');
 
             if (globalStats) {
-              statsLines.push('Overall Usage');
-              statsLines.push(`  Total Page Loads:     ${globalStats.totalPageLoads || 0}`);
-              statsLines.push(`  Total Commands:       ${globalStats.totalCommands || 0}`);
-              statsLines.push(`  Last Page Load:       ${globalStats.lastPageLoad ? formatDate(globalStats.lastPageLoad) : 'Never'}`);
+              const totalPageLoads = globalStats.totalPageLoads || 0;
+              const totalCommands = globalStats.totalCommands || 0;
+              const avgCmdsPerLoad = totalPageLoads > 0 ? (totalCommands / totalPageLoads).toFixed(1) : 0;
+
+              statsLines.push('USAGE OVERVIEW');
+              statsLines.push(
+                `  Page Loads${' '.repeat(13)}${totalPageLoads.toString().padStart(10)}`
+              );
+              statsLines.push(
+                `  Total Commands${' '.repeat(9)}${totalCommands.toString().padStart(10)}`
+              );
+              statsLines.push(
+                `  Avg Cmds/Load${' '.repeat(9)}${avgCmdsPerLoad.toString().padStart(10)}`
+              );
+              statsLines.push(
+                `  Last Activity${' '.repeat(10)}${
+                  globalStats.lastPageLoad ? formatDate(globalStats.lastPageLoad) : 'Never'
+                }`
+              );
               statsLines.push('');
 
               if (globalStats.commands && Object.keys(globalStats.commands).length > 0) {
-                statsLines.push('Most Used Commands');
+                statsLines.push('TOP COMMANDS');
+                statsLines.push(
+                  'Rank'.padEnd(6) +
+                  'Command'.padEnd(16) +
+                  'Count'.padStart(8) +
+                  'Percent'.padStart(10)
+                );
+                statsLines.push('─'.repeat(42));
+
                 const cmds = Object.entries(globalStats.commands)
                   .map(([cmd, count]: [string, any]) => ({ cmd, count }))
                   .sort((a, b) => b.count - a.count)
                   .slice(0, 10);
 
-                cmds.forEach(({ cmd, count }) => {
-                  statsLines.push(`  ${cmd}: ${count}`);
+                cmds.forEach((item, index) => {
+                  const percent = ((item.count / totalCommands) * 100).toFixed(1);
+                  statsLines.push(
+                    `${(index + 1).toString().padEnd(6)}` +
+                    `${item.cmd.padEnd(16)}` +
+                    `${item.count.toString().padStart(8)}` +
+                    `${percent.padStart(9)}%`
+                  );
                 });
                 statsLines.push('');
               }
@@ -51,7 +95,34 @@ export function createStatsCommands(deps: CommandDeps): Command[] {
               statsLines.push('');
             }
 
-            statsLines.push('═════════════════════════════════════════');
+            if (repos && repos.length > 0) {
+              statsLines.push('GITHUB PORTFOLIO');
+              statsLines.push('Repository'.padEnd(35) + 'Stars'.padStart(8) + 'Forks'.padStart(8));
+              statsLines.push('─'.repeat(51));
+
+              const topRepos = repos.slice(0, 10);
+              let totalStars = 0;
+
+              topRepos.forEach((repo: PortfolioRepo) => {
+                totalStars += repo.stars;
+                statsLines.push(
+                  repo.name.padEnd(35) +
+                  repo.stars.toString().padStart(8) +
+                  repo.forks.toString().padStart(8)
+                );
+              });
+
+              statsLines.push('─'.repeat(51));
+              statsLines.push(
+                'Total'.padEnd(35) +
+                totalStars.toString().padStart(8) +
+                repos.reduce((sum: number, r: PortfolioRepo) => sum + r.forks, 0).toString().padStart(8)
+              );
+              statsLines.push(`Repositories: ${repos.length}`);
+              statsLines.push('');
+            }
+
+            statsLines.push('═'.repeat(70));
             statsLines.push('');
 
             return statsLines;

@@ -8,12 +8,12 @@ import ScreenState from './demo/screenState';
 const updateFontSize = () => {
   const viewportHeight = window.innerHeight;
   const lineHeight = 1.4;
-  const targetLines = 90;
+  const targetLines = 40;
 
   // Calculate font size: viewportHeight / (targetLines * lineHeight)
-  // Clamped between 8px and 16px
+  // Clamped between 12px and 20px
   const calculatedSize = viewportHeight / (targetLines * lineHeight);
-  const fontSize = Math.max(8, Math.min(calculatedSize, 16));
+  const fontSize = Math.max(12, Math.min(calculatedSize, 20));
 
   console.log(`Font sizing: viewport=${viewportHeight}px, calculated=${calculatedSize.toFixed(2)}px, final=${fontSize.toFixed(2)}px`);
 

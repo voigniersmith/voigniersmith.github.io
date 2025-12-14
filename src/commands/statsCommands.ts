@@ -5,7 +5,7 @@ import { fetchGlobalStats } from '../utils/firebase';
 import { AnimationSpeed } from '../utils/animationSpeed';
 
 export function createStatsCommands(deps: CommandDeps): Command[] {
-  const { createOutput, onAnimationRef, onUpdateLineData0Ref, executeAsyncCommand } = deps;
+  const { createOutput, onAnimationRef, onUpdateLineData0Ref, executeAsyncCommand, onStopAnimationRef } = deps;
 
   return [
     {
@@ -57,6 +57,7 @@ export function createStatsCommands(deps: CommandDeps): Command[] {
             return statsLines;
           },
           (lines) => {
+            onStopAnimationRef.current?.();
             onUpdateLineData0Ref.current?.(() => lines.map(line => createOutput(line)));
           }
         );

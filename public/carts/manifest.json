@@ -1,0 +1,9 @@
+{
+  "_readme": {
+    "p-explorer": "Add BBS carts here with a pid — no download needed, streams from lexaloffle. Find the pid in the BBS URL: lexaloffle.com/bbs/?pid=XXXXX",
+    "carts-window": "For your own exported .html carts, add a 'file' field pointing to a file in this directory.",
+    "example_bbs":   { "title": "Celeste",  "pid": 2852,           "author": "maddy+noel", "tag": "platformer" },
+    "example_local": { "title": "My Game",  "file": "mygame.html", "author": "me",         "tag": "platformer" }
+  },
+  "carts": []
+}

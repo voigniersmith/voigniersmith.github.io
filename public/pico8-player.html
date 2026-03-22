@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PICO-8</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    canvas {
+      display: block;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    #err {
+      display: none;
+      color: #ff004d;
+      font: 8px/1.6 "Courier New", monospace;
+      padding: 10px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" oncontextmenu="event.preventDefault()" width="128" height="128"></canvas>
+  <div id="err"></div>
+
+  <script>
+    (function () {
+      var params   = new URLSearchParams(location.search);
+      var cartfile = params.get('cart') || '';
+      var errEl    = document.getElementById('err');
+
+      function showErr(msg) {
+        errEl.style.display = 'block';
+        errEl.textContent   = 'pico-8 player error:\n' + msg;
+      }
+
+      if (!cartfile) { showErr('no cart specified (?cart=filename)'); return; }
+
+      // pico8.js reads window.pico8_cartbase64 on startup.
+      // Fetch the cart file, base64-encode it, then inject the runtime.
+      fetch('/carts/' + encodeURIComponent(cartfile))
+        .then(function (r) {
+          if (!r.ok) throw new Error('cart not found: ' + cartfile
+            + '\n(place the file in public/carts/ and check the filename in manifest.json)');
+          return r.arrayBuffer();
+        })
+        .then(function (buf) {
+          // base64-encode
+          var bytes  = new Uint8Array(buf);
+          var binary = '';
+          var CHUNK  = 0x8000;
+          for (var i = 0; i < bytes.length; i += CHUNK)
+            binary += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+
+          window.pico8_cartbase64 = btoa(binary);
+          window.pico8_cartname   = cartfile;
+          window.pico8_gpio       = [];
+
+          // Resize canvas to fill the iframe container
+          var canvas = document.getElementById('canvas');
+          var size   = Math.min(window.innerWidth, window.innerHeight);
+          canvas.style.width  = size + 'px';
+          canvas.style.height = size + 'px';
+
+          // Dynamically load the PICO-8 JS runtime.
+          // Copy pico8.js from your PICO-8 installation into public/:
+          //   Mac: /Applications/PICO-8.app/Contents/Resources/player/pico8.js
+          //   Win: C:\Program Files (x86)\PICO-8\player\pico8.js
+          //   Lin: ~/pico-8/player/pico8.js
+          var script = document.createElement('script');
+          script.src = '/pico8.js';
+          script.onerror = function () {
+            showErr('pico8.js not found.\n\nCopy pico8.js from your PICO-8 installation into public/\n'
+              + 'then restart the dev server.');
+          };
+          document.body.appendChild(script);
+        })
+        .catch(function (err) { showErr(err.message); });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+/* ── Press Start 2P everywhere in dev mode ── */
+.dev-root * {
+  font-family: 'Press Start 2P', monospace;
+  box-sizing: border-box;
+}
+
+/* ── Palette variables ── */
+.dev-root {
+  --bg-desktop:       #0d0d1a;
+  --bg-window:        #1a1a2e;
+  --bg-chrome:        #16213e;
+  --bg-titlebar:      #0f3460;
+  --bg-titlebar-blur: #1a1a2e;
+  --border:           #e94560;
+  --border-dim:       #3a3a5c;
+  --text:             #eaeaea;
+  --text-dim:         #7a7a9a;
+  --accent-cyan:      #00cfff;
+  --accent-green:     #33ff33;
+  --accent-yellow:    #ffd700;
+  --accent-magenta:   #ff6ec7;
+  --shadow:           2px 2px 0 #000;
+}
+
+/* ── Desktop ── */
+.dev-desktop {
+  background: var(--bg-desktop);
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  image-rendering: pixelated;
+}
+
+/* Pixel grid overlay — makes individual pixels visible */
+.dev-desktop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.25) 1px, transparent 1px);
+  background-size: 4px 4px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── Window ── */
+.dev-window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--border);
+  box-shadow: var(--shadow);
+  min-width: 200px;
+  min-height: 120px;
+}
+
+.dev-window.focused {
+  border-color: var(--accent-cyan);
+  z-index: 10;
+}
+
+.dev-window-titlebar {
+  background: var(--bg-titlebar-blur);
+  border-bottom: 2px solid var(--border-dim);
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.dev-window.focused .dev-window-titlebar {
+  background: var(--bg-titlebar);
+  border-bottom-color: var(--accent-cyan);
+}
+
+.dev-window-titlebar:active {
+  cursor: grabbing;
+}
+
+.dev-window-btn {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #000;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.dev-window-btn.close  { background: #e94560; }
+.dev-window-btn.min    { background: #ffd700; }
+.dev-window-btn.max    { background: #33ff33; }
+
+.dev-window-title {
+  flex: 1;
+  text-align: center;
+  font-size: 0.5rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dev-window.focused .dev-window-title {
+  color: var(--text);
+}
+
+.dev-window-body {
+  background: var(--bg-window);
+  color: var(--text);
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+  font-size: 0.5rem;
+  line-height: 1.8;
+}
+
+/* ── Desktop icon ── */
+.dev-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 72px;
+  cursor: pointer;
+  padding: 6px;
+  user-select: none;
+}
+
+.dev-icon:hover .dev-icon-img,
+.dev-icon:focus .dev-icon-img {
+  outline: 2px solid var(--accent-cyan);
+}
+
+.dev-icon-img {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+}
+
+.dev-icon-label {
+  font-size: 0.4rem;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.6;
+  text-shadow: 1px 1px 0 #000;
+  word-break: break-word;
+}
+
+/* ── Taskbar ── */
+.dev-taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: var(--bg-chrome);
+  border-top: 2px solid var(--border-dim);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 4px;
+  z-index: 1000;
+}
+
+.dev-taskbar-btn {
+  background: var(--bg-window);
+  border: 2px solid var(--border-dim);
+  color: var(--text-dim);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.4rem;
+  padding: 4px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dev-taskbar-btn.active {
+  background: var(--bg-titlebar);
+  border-color: var(--accent-cyan);
+  color: var(--text);
+}
+
+.dev-taskbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dev-taskbar-weather {
+  color: var(--text-dim);
+  font-size: 0.4rem;
+  white-space: nowrap;
+}
+
+.dev-taskbar-icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.dev-taskbar-clock {
+  color: var(--text-dim);
+  font-size: 0.4rem;
+  white-space: nowrap;
+}
+
+.dev-taskbar-exit {
+  background: transparent;
+  border: 2px solid var(--border-dim);
+  color: var(--text-dim);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.4rem;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.dev-taskbar-exit:hover {
+  border-color: var(--border);
+  color: var(--border);
+}
+
+/* ── Stats widget ── */
+.dev-stats-widget {
+  background: var(--bg-chrome);
+  border: 1px solid var(--border-dim);
+  padding: 8px 10px;
+  min-width: 140px;
+  box-shadow: var(--shadow);
+}
+
+.dev-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  font-size: 0.38rem;
+}
+
+.dev-stats-label {
+  color: var(--accent-cyan);
+  min-width: 44px;
+}
+
+.dev-stats-value {
+  color: var(--text);
+}
+
+.dev-stats-bar {
+  flex: 1;
+  height: 5px;
+  background: var(--bg-window);
+  border: 1px solid var(--border-dim);
+  display: flex;
+  overflow: hidden;
+}
+
+.dev-stats-bar span {
+  height: 100%;
+  transition: width 0.8s linear;
+}
+
+/* ── Boot screen cursor blink ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Scrollbar ── */
+.dev-window-body::-webkit-scrollbar { width: 8px; }
+.dev-window-body::-webkit-scrollbar-track { background: var(--bg-chrome); }
+.dev-window-body::-webkit-scrollbar-thumb { background: var(--border-dim); border: 1px solid #000; }
+.dev-window-body::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }

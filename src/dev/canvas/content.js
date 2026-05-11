@@ -3,7 +3,7 @@
 // bx/by/bw/bh is the window body rect in canvas coords.
 // Returns total content height so the caller can set up scrolling.
 
-import { fillRect, strokeRect, hline, vline, text, textW, clip, wrapText, drawScrollbar, C, PAD, LINE, FONT, SMALL, SCROLLBAR_W, setTheme, getTheme } from './draw';
+import { fillRect, strokeRect, hline, vline, text, textW, clip, wrapText, drawScrollbar, C, PAD, LINE, SMALL, SCROLLBAR_W, setTheme, getTheme } from './draw';
 import { ABOUT, PROJECTS, CONTACT, SOCIALS, FORTUNES } from './portfolio.config';
 
 const CARD_PAD = 3;
@@ -334,7 +334,7 @@ const EASTER_EGGS = {
     { t: 'okay.', c: C.green },
   ],
   'sudo': (raw) => [
-    { t: `sudo: permission denied (you\'re a guest)`, c: '#e94560' },
+    { t: `sudo: permission denied (you're a guest)`, c: '#e94560' },
   ],
   'hello world': () => [
     { t: 'Hello, World!', c: C.green },
@@ -913,19 +913,20 @@ export function renderGitHub(ctx, bx, by, bw, bh, scrollY, hotspots, events, loa
         ? ` (${(ev.payload?.commits || []).length} commit${(ev.payload?.commits || []).length !== 1 ? 's' : ''})`
         : '';
 
-      text(ctx, `[${icon}]`, lx, cy, C.cyan, SMALL);
+      const y1 = cy;
+      text(ctx, `[${icon}]`, lx, y1, C.cyan, SMALL);
       const typeLabel = ev.type.replace('Event', '').toLowerCase() + detail;
-      clip(ctx, lx + 20, cy, fw - 60, LINE, () => {
-        text(ctx, typeLabel, lx + 20, cy, C.text, SMALL);
+      clip(ctx, lx + 20, y1, fw - 60, LINE, () => {
+        text(ctx, typeLabel, lx + 20, y1, C.text, SMALL);
       });
       const whenW = textW(ctx, when, SMALL);
-      text(ctx, when, lx + fw - whenW, cy, C.textDim, SMALL);
-      cy += LINE;
+      text(ctx, when, lx + fw - whenW, y1, C.textDim, SMALL);
 
-      clip(ctx, lx + 20, cy, fw - 20, LINE, () => {
-        text(ctx, repo, lx + 20, cy, C.yellow, SMALL);
+      const y2 = y1 + LINE;
+      clip(ctx, lx + 20, y2, fw - 20, LINE, () => {
+        text(ctx, repo, lx + 20, y2, C.yellow, SMALL);
       });
-      cy += LINE + 2;
+      cy = y2 + LINE + 2;
     }
   }
 

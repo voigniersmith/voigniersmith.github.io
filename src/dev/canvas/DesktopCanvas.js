@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  W, H, TITLEBAR_H, TASKBAR_H, BTN_SIZE, PAD,
+  W, H, TITLEBAR_H, TASKBAR_H, BTN_SIZE,
   BTN_CLOSE_X, BTN_MIN_X, BTN_MAX_X,
   drawDesktop, drawWindowChrome, drawDesktopIcons, drawTaskbar, drawStatsWidget, drawCursor, drawToasts,
   clip, fillRect, text, C, initScreensaver, drawScreensaver, setTheme, getTheme,
@@ -8,7 +8,7 @@ import {
 import { renderAbout, renderProjects, renderResume, renderContact, renderCarts, renderPicoBrowser, renderTerminal, renderGitHub, renderWeather, renderPaint, runTerminalCommand, makeTerminalLines, tabComplete, TERM_PROMPT, BROWSER_NAV_H } from './content';
 import { sounds, isMuted, setMuted } from '../sounds';
 import { ICONS, INIT_WINS, BBS_FALLBACK, BBS_WIDGET_URL, BBS_PAGE_SIZE } from './desktop.config';
-import { fetchBBSPage, getTime, toast } from './bbs-utils';
+import { fetchBBSPage, loadMoreBBSPage, getTime, toast } from './bbs-utils';
 
 const DBLCLICK_MS   = 350;
 const RESIZE_HANDLE = 8;
@@ -78,10 +78,6 @@ function fmtUptime(ms) {
   const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
   const sc = String(s % 60).padStart(2, '0');
   return `${h}:${m}:${sc}`;
-}
-
-function clampScroll(scrollY, totalH, bodyH) {
-  return Math.max(0, Math.min(scrollY, Math.max(0, totalH - bodyH)));
 }
 
 function winAt(wins, x, y) {
@@ -544,30 +540,7 @@ export default function DesktopCanvas({ onExit }) {
           && Array.isArray(s.bbsFeatured) && win.contentH
           && !(s.bbsLastLoad && Date.now() - s.bbsLastLoad < 500)
           && win.scrollY + bh >= win.contentH - 80) {
-        s.bbsLoading = true;
-        const nextPage = s.bbsPage + 1;
-        fetchBBSPage(nextPage, (items, err) => {
-          if (err) {
-            // transient failure — keep bbsHasMore true so user can retry by scrolling
-            toast(s, 'p-explorer: fetch failed, scroll to retry');
-          } else if (!items || items.length === 0) {
-            // genuine end of feed
-            s.bbsHasMore = false;
-          } else {
-            const existingPids = new Set(s.bbsFeatured.map(c => c.pid));
-            const fresh = items.filter(c => !existingPids.has(c.pid));
-            if (fresh.length === 0) {
-              s.bbsHasMore = false;
-            } else {
-              s.bbsFeatured = [...s.bbsFeatured, ...fresh];
-              s.bbsPage     = nextPage;
-              s.bbsHasMore  = items.length >= BBS_PAGE_SIZE;
-              s.bbsLastLoad = Date.now();
-              toast(s, `loaded ${fresh.length} more carts`);
-            }
-          }
-          s.bbsLoading = false;
-        });
+        loadMoreBBSPage(s, s.bbsPage + 1);
       }
     }
   };

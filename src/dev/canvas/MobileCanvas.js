@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  fillRect, strokeRect, hline, vline, text, textW, clip,
-  drawIcon, drawToasts, C, PAD, LINE, SMALL, SCROLLBAR_W,
+  fillRect, strokeRect, hline, clip,
+  drawIcon, C, PAD, SMALL,
 } from './draw';
 import {
   renderAbout, renderProjects, renderResume, renderContact, renderCarts,
   renderPicoBrowser, renderTerminal, runTerminalCommand, makeTerminalLines,
   tabComplete, TERM_PROMPT, BROWSER_NAV_H,
 } from './content';
-import { sounds, isMuted, setMuted } from '../sounds';
+import { sounds } from '../sounds';
 import { BBS_FALLBACK, BBS_WIDGET_URL, BBS_PAGE_SIZE } from './desktop.config';
-import { fetchBBSPage, getTime, toast } from './bbs-utils';
+import { fetchBBSPage, loadMoreBBSPage, getTime, toast } from './bbs-utils';
 
 // ── Logical canvas dimensions (portrait) ───────────────────────────────────
 const MW = 160;  // logical width
@@ -55,6 +55,7 @@ function mkState() {
     bbsLoading:   false,
     bbsHasMore:   true,
     bbsPage:      1,
+    bbsLastLoad:  0,
     carts:        [],
     term:         { lines: makeTerminalLines(), input: '', blink: 0, history: [], histIdx: -1 },
     browserState: { view: 'home', cart: null },
@@ -219,25 +220,9 @@ export default function MobileCanvas({ onExit }) {
       if (s._activeApp === 'pico-browser' && s.browserState.view === 'home') {
         const bh = s.canvasH - STATUS_H - APP_BAR_H - HOME_IND_H - BROWSER_NAV_H;
         if (!s.bbsLoading && s.bbsHasMore && Array.isArray(s.bbsFeatured)
-            && s.contentH && s.scrollY + bh >= s.contentH - 40) {
-          s.bbsLoading = true;
-          const nextPage = s.bbsPage + 1;
-          fetchBBSPage(nextPage, (items, err) => {
-            if (!err && items && items.length > 0) {
-              const seen = new Set(s.bbsFeatured.map(c => c.pid));
-              const fresh = items.filter(c => !seen.has(c.pid));
-              if (fresh.length === 0) {
-                s.bbsHasMore = false;
-              } else {
-                s.bbsFeatured = [...s.bbsFeatured, ...fresh];
-                s.bbsPage    = nextPage;
-                s.bbsHasMore = items.length >= BBS_PAGE_SIZE;
-              }
-            } else {
-              s.bbsHasMore = false;
-            }
-            s.bbsLoading = false;
-          });
+            && s.contentH && s.scrollY + bh >= s.contentH - 40
+            && !(s.bbsLastLoad && Date.now() - s.bbsLastLoad < 500)) {
+          loadMoreBBSPage(s, s.bbsPage + 1);
         }
       }
     };
@@ -565,7 +550,6 @@ function drawAppBar(ctx, app, cw, hotspots) {
 
 // ── Home screen icons ────────────────────────────────────────────────────────
 const COLS       = 3;
-const CELL_W     = Math.floor((MW - PAD * 2) / COLS);   // ≈ 49
 const CELL_H     = ICON_SZ + 3 + SMALL + 6;             // 37
 const GRID_TOP   = STATUS_H + 10;
 

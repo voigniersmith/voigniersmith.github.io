@@ -19,8 +19,10 @@ Linting is handled by ESLint built into Create React App — no separate lint sc
 
 This repo has **two distinct UIs** that share the same React entry point:
 
-1. **Terminal site** — the default public-facing portfolio (`/`). Split-pane terminal emulator built in React + TypeScript.
-2. **Dev OS** — a pixel-art desktop OS (`/dev` path or Ctrl+D). Entirely canvas-rendered, no React DOM in the UI layer.
+1. **Dev OS** — pixel-art desktop OS at `/` (the default). Entirely canvas-rendered, no React DOM in the UI layer.
+2. **Terminal site** — split-pane terminal emulator at `/terminal`. React + TypeScript.
+
+Ctrl+D toggles between the two. Deep links (e.g. `/terminal`) work in production via the SPA-on-GH-Pages 404.html redirect in `public/`.
 
 ---
 

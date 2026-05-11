@@ -19,26 +19,36 @@ const updateFontSize = () => {
 updateFontSize();
 window.addEventListener('resize', updateFontSize);
 
+const isDevPath = () =>
+  window.location.pathname !== '/terminal' && window.location.hash !== '#terminal';
+
 function App() {
-  const [devMode, setDevMode] = useState(
-    window.location.pathname === '/dev' || window.location.hash === '#dev'
-  );
+  const [devMode, setDevMode] = useState(isDevPath);
 
   const enterDev = () => {
-    window.history.pushState({}, '', '/dev');
+    window.history.pushState({}, '', '/');
     setDevMode(true);
   };
 
   const exitDev = () => {
-    window.history.pushState({}, '', '/');
+    window.history.pushState({}, '', '/terminal');
     setDevMode(false);
   };
 
-  // Ctrl+D anywhere on the main site enters dev mode
+  // Sync state with URL on browser back/forward
   useEffect(() => {
-    if (devMode) return;
+    const onPop = () => setDevMode(isDevPath());
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  // Ctrl+D toggles between dev OS and terminal
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'd') { e.preventDefault(); enterDev(); }
+      if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        if (devMode) exitDev(); else enterDev();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

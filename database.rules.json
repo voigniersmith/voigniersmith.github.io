@@ -1,0 +1,26 @@
+{
+  "rules": {
+    "guestbook": {
+      "entries": {
+        ".read": true,
+        ".indexOn": ["ts"],
+        "$id": {
+          ".write": "!data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['name', 'message', 'ts'])",
+          "name": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 32"
+          },
+          "message": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 280"
+          },
+          "ts": {
+            ".validate": "newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    }
+  }
+}

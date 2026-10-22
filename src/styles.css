@@ -1,0 +1,134 @@
+:root {
+  --bg: #252a33;
+  --fg: #eeeeee;
+  --dim: #8b93a1;
+  --accent: #7ee787;
+  --error: #ff7b72;
+  --link: #79c0ff;
+  --font: 'Lucida Console', 'Courier New', Courier, monospace;
+  /* ~0.6em per monospace glyph: 56em fits the widest art (93 cols) */
+  --art-size: min(1em, calc((100vw - 2rem) / 56));
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #dddddd;
+  --fg: #1a1e24;
+  --dim: #5b6270;
+  --accent: #116329;
+  --error: #b42318;
+  --link: #0550ae;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: clamp(13px, 1.6vh, 18px);
+  line-height: 1.4;
+}
+
+.terminal {
+  min-height: 100dvh;
+  padding: 1rem max(1rem, env(safe-area-inset-right)) 2rem max(1rem, env(safe-area-inset-left));
+  cursor: text;
+}
+
+.line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.line.art {
+  white-space: pre;
+  overflow-wrap: normal;
+  font-size: var(--art-size);
+  line-height: 1.15;
+}
+
+.line.input {
+  color: var(--fg);
+}
+
+.line.dim {
+  color: var(--dim);
+}
+
+.line.error {
+  color: var(--error);
+}
+
+.line a {
+  color: var(--link);
+}
+
+.prompt {
+  display: flex;
+  align-items: baseline;
+}
+
+.prompt span {
+  color: var(--accent);
+  white-space: pre;
+  flex-shrink: 0;
+}
+
+.prompt input {
+  flex: 1;
+  min-width: 4ch;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  /* iOS zooms into inputs under 16px; keep the text size, block the zoom */
+  font-size: max(16px, 1em);
+  caret-color: var(--accent);
+}
+
+.start {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+.start .art {
+  margin: 0;
+  font-family: var(--font);
+  font-size: min(1em, calc((100vw - 2rem) / 49));
+  line-height: 1.15;
+}
+
+.start h1 {
+  font-size: 1.5rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.blink {
+  animation: blink 1.2s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blink {
+    animation: none;
+  }
+}

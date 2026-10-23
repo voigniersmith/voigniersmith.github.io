@@ -1,5 +1,4 @@
 // Minecraft server status via mcstatus.io (CORS-enabled, caches ~1 min).
-// The address is the playit.gg Java tunnel; mc.voigniersmith.com has no SRV record.
 const SERVER = 'adv-varied.tun.ply.gg:1094';
 
 export interface Status {

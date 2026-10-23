@@ -31,19 +31,13 @@ const prose: Record<string, string[]> = {
   'homelab.sh': [
     'My Homelab',
     ' ',
-    'An always-on Linux box at home that runs my self-hosted',
-    'services in Docker, a Minecraft server for friends, and the',
-    'monitoring and backups that keep them alive. The web services',
-    'are reachable through a Cloudflare Tunnel, so nothing at home',
-    'has an open port.',
+    'A little always-on computer at home where I tinker with',
+    'self-hosting and run a Minecraft server for friends.',
   ],
   'mamacraft.mc': [
     'MamaCraft',
     ' ',
-    'A Fabric-modded Minecraft server for friends, kept on the',
-    'latest release even when mods break. Java and Bedrock players',
-    'can play together through Geyser and Floodgate. Nightly backups',
-    "go to a second machine. Type 'mc' to see if it's up right now.",
+    "A Minecraft server I run for friends. Type 'mc' to see if it's up.",
   ],
   'ppps.cpp': [
     'Powder Pixel Physics Simulator',
@@ -140,7 +134,7 @@ export const dotfiles: Record<string, string[]> = {
     "Andrew's .plan",
     ' ',
     '- v3 of this site: back to one terminal, plus a guestbook',
-    '- keeping the Minecraft server on the latest release',
+    '- running a Minecraft server for friends',
     '- more secrets in this shell, eventually',
   ],
   '.secret': [

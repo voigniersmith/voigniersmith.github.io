@@ -247,10 +247,7 @@ export const commands: Command[] = [
     usage: 'mc',
     summary: 'is the Minecraft server up?',
     man: {
-      description: [
-        "Checks whether my Minecraft server is online and how many people are on.",
-        'The status is cached for about a minute. The server is whitelisted, so ask me to join.',
-      ],
+      description: ['Checks whether my Minecraft server is online.'],
       seeAlso: ['cat Applications/mamacraft.mc'],
     },
     run: async (_args, ctx) => {

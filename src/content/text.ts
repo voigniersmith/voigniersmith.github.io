@@ -9,13 +9,13 @@ const reflow = (lines: string[]) =>
 export const start = reflow([
   'Welcome to voigniersmith.com!',
   ' ',
-  "My name is Andrew Smith, and I'm currently a Software Engineer at Amazon",
-  "in New York, where I've been for over two years. I'm passionate about",
+  "My name is Andrew Smith, and I'm a Software Engineer at Amazon in New York,",
+  "where I've been since 2023. I'm passionate about",
   'building scalable systems and exploring the frontiers of generative AI.',
   'Anyhow, welcome to my portfolio website v3.',
   ' ',
   'This is a little shell built in React. Go ahead and explore by typing below.',
-  "Type 'help' for the list of commands.",
+  "Type 'help' for the list of commands, or 'projects' to see what I've built.",
   ' ',
   "Passing through? Leave a note with 'guestbook sign'.",
 ]).concat(' ');
@@ -28,6 +28,23 @@ export const readme = [
 ];
 
 const prose: Record<string, string[]> = {
+  'homelab.sh': [
+    'My Homelab',
+    ' ',
+    'An always-on Linux box at home that runs my self-hosted',
+    'services in Docker, a Minecraft server for friends, and the',
+    'monitoring and backups that keep them alive. The web services',
+    'are reachable through a Cloudflare Tunnel, so nothing at home',
+    'has an open port.',
+  ],
+  'mamacraft.mc': [
+    'MamaCraft',
+    ' ',
+    'A Fabric-modded Minecraft server for friends, kept on the',
+    'latest release even when mods break. Java and Bedrock players',
+    'can play together through Geyser and Floodgate. Nightly backups',
+    "go to a second machine. Type 'mc' to see if it's up right now.",
+  ],
   'ppps.cpp': [
     'Powder Pixel Physics Simulator',
     ' ',
@@ -65,6 +82,11 @@ const prose: Record<string, string[]> = {
     ' ',
     "Initially inspired by Michael D'angelo's personal site,",
     "it's turned into my own idea of a proprietary React shell.",
+    ' ',
+    'v1 (2020) was a plain React portfolio, v2 (2022) the first terminal,',
+    'and in between came a pixel-art desktop OS. v3 (2026) goes back to',
+    'basics: one terminal, no animations, and a guestbook you sign from',
+    'the command line.',
   ],
   'paging.c': [
     'Enabling Paging for an x86 Intel Galileo Machine',
@@ -104,3 +126,27 @@ const prose: Record<string, string[]> = {
 export const projects: Record<string, string[]> = Object.fromEntries(
   Object.entries(prose).map(([name, lines]) => [name, reflow(lines)]),
 );
+
+// Home directory dotfiles: `ls -a` to find them.
+export const dotfiles: Record<string, string[]> = {
+  '.bashrc': [
+    '# ~/.bashrc',
+    "export PS1='guest@voigniersmith:\\w$ '",
+    "alias ll='ls -a'",
+    "alias please='sudo'",
+    '# TODO: stop adding easter eggs',
+  ],
+  '.plan': [
+    "Andrew's .plan",
+    ' ',
+    '- v3 of this site: back to one terminal, plus a guestbook',
+    '- keeping the Minecraft server on the latest release',
+    '- more secrets in this shell, eventually',
+  ],
+  '.secret': [
+    'You found the secret file!',
+    ' ',
+    "There's no prize, but you can brag about it in the guestbook:",
+    '  guestbook sign',
+  ],
+};

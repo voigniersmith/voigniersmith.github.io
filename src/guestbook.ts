@@ -45,15 +45,20 @@ export function clean(s: string, max: number): string {
     .slice(0, max);
 }
 
-export async function recent(limit = 20): Promise<Entry[]> {
+export const PAGE_SIZE = 10;
+
+// Page 1 is the newest PAGE_SIZE entries, newest first.
+export async function page(n: number): Promise<{ entries: Entry[]; hasMore: boolean }> {
   const database = await db();
   const { ref, query, orderByChild, limitToLast, get } = await import('firebase/database');
-  const snap = await get(query(ref(database, 'guestbook/entries'), orderByChild('ts'), limitToLast(limit)));
-  const entries: Entry[] = [];
+  // one extra entry tells us whether an older page exists
+  const snap = await get(query(ref(database, 'guestbook/entries'), orderByChild('ts'), limitToLast(n * PAGE_SIZE + 1)));
+  const all: Entry[] = [];
   snap.forEach((child) => {
-    entries.push(child.val() as Entry);
+    all.push(child.val() as Entry);
   });
-  return entries;
+  all.reverse();
+  return { entries: all.slice((n - 1) * PAGE_SIZE, n * PAGE_SIZE), hasMore: all.length > n * PAGE_SIZE };
 }
 
 export function secondsUntilCanSign(): number {

@@ -1,5 +1,5 @@
 import * as pics from './content/pics';
-import { projects, readme } from './content/text';
+import { dotfiles, projects, readme } from './content/text';
 
 // A file is something `cat` can print and/or `open` can launch.
 export interface File {
@@ -13,7 +13,7 @@ const RESUME_URL =
 const INSTAGRAM = 'https://www.instagram.com/andrewnook4/';
 const gh = (repo: string) => `https://github.com/voigniersmith/${repo}`;
 
-const project = (name: string, url: string, pic?: string[]): File => ({
+const project = (name: string, url?: string, pic?: string[]): File => ({
   lines: pic ? [...pic, ' ', ...projects[name]] : projects[name],
   url,
 });
@@ -22,7 +22,11 @@ const link = (url: string): File => ({ lines: [url], url });
 const art = (lines: string[], url?: string): File => ({ lines, art: true, url });
 
 export const tree: Record<string, Record<string, File>> = {
+  '~': Object.fromEntries(Object.entries(dotfiles).map(([name, lines]) => [name, { lines }])),
   '~/Applications': {
+    // no links: the homelab's pages sit behind Cloudflare Access
+    'homelab.sh': project('homelab.sh'),
+    'mamacraft.mc': project('mamacraft.mc'),
     'ppps.cpp': project('ppps.cpp', gh('CS535FinalProject')),
     'shell.cpp': project('shell.cpp', gh('Shell'), pics.bash42),
     'omilia.js': project('omilia.js', gh('omilia'), pics.omega7),
@@ -63,7 +67,9 @@ export const tree: Record<string, Record<string, File>> = {
 };
 
 export const HOME = '~';
-export const homeDirs = Object.keys(tree).map((d) => d.slice(2));
+export const homeDirs = Object.keys(tree)
+  .filter((d) => d !== HOME)
+  .map((d) => d.slice(2));
 
 // Resolve a `cd` target relative to cwd. Only one level deep exists.
 export function resolveDir(cwd: string, target: string): string | null {
@@ -80,9 +86,11 @@ export function resolveDir(cwd: string, target: string): string | null {
   return match ?? null;
 }
 
-export function listDir(cwd: string): string[] {
-  if (cwd === HOME) return homeDirs.map((d) => d + '/');
-  return Object.keys(tree[cwd] ?? {});
+// `all` (ls -a) includes dotfiles and the . / .. entries.
+export function listDir(dir: string, all = false): string[] {
+  const files = Object.keys(tree[dir] ?? {});
+  const entries = dir === HOME ? [...files, ...homeDirs.map((d) => d + '/')] : files;
+  return all ? ['./', ...(dir === HOME ? [] : ['../']), ...entries] : entries.filter((f) => !f.startsWith('.'));
 }
 
 // Find a file by name in cwd, or by `Dir/name` path from home.
@@ -90,7 +98,7 @@ export function findFile(cwd: string, name: string): File | null {
   const slash = name.lastIndexOf('/');
   const dir = slash === -1 ? cwd : resolveDir(cwd, name.slice(0, slash));
   const base = slash === -1 ? name : name.slice(slash + 1);
-  if (!dir || dir === HOME) return null;
+  if (!dir) return null;
   const files = tree[dir] ?? {};
   const key = Object.keys(files).find((f) => f.toLowerCase() === base.toLowerCase());
   return key ? files[key] : null;

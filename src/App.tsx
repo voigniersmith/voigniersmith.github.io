@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import Terminal from './Terminal';
 import { me81 } from './content/pics';
-
-const THEMES = ['dark', 'light'];
+import { DEFAULT_THEME, THEMES } from './themes';
 
 function savedTheme(): string {
   try {
@@ -11,7 +10,7 @@ function savedTheme(): string {
   } catch {
     // storage unavailable
   }
-  return 'dark';
+  return DEFAULT_THEME;
 }
 
 // Like the 2022 site: portrait, "Hello, World!", press any key.

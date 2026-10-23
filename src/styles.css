@@ -21,6 +21,57 @@
   color-scheme: light;
 }
 
+/* https://github.com/morhetz/gruvbox */
+:root[data-theme='gruvbox'] {
+  --bg: #282828;
+  --fg: #ebdbb2;
+  --dim: #a89984;
+  --accent: #b8bb26;
+  --error: #fb4934;
+  --link: #83a598;
+  color-scheme: dark;
+}
+
+:root[data-theme='gruvbox-light'] {
+  --bg: #fbf1c7;
+  --fg: #3c3836;
+  --dim: #7c6f64;
+  --accent: #79740e;
+  --error: #9d0006;
+  --link: #076678;
+  color-scheme: light;
+}
+
+:root[data-theme='nord'] {
+  --bg: #2e3440;
+  --fg: #d8dee9;
+  --dim: #8891a5;
+  --accent: #a3be8c;
+  --error: #bf616a;
+  --link: #88c0d0;
+  color-scheme: dark;
+}
+
+:root[data-theme='dracula'] {
+  --bg: #282a36;
+  --fg: #f8f8f2;
+  --dim: #8a95c4;
+  --accent: #50fa7b;
+  --error: #ff5555;
+  --link: #8be9fd;
+  color-scheme: dark;
+}
+
+:root[data-theme='solarized'] {
+  --bg: #002b36;
+  --fg: #93a1a1;
+  --dim: #6c8189;
+  --accent: #859900;
+  --error: #dc322f;
+  --link: #268bd2;
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }

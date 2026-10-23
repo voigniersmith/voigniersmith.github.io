@@ -3,6 +3,7 @@ import { projects, start } from './content/text';
 import { me41 } from './content/pics';
 import * as guestbook from './guestbook';
 import * as mc from './mc';
+import { THEMES } from './themes';
 
 export interface Line {
   text: string;
@@ -286,11 +287,15 @@ export const commands: Command[] = [
   },
   {
     name: 'theme',
-    usage: 'theme <light|dark>',
+    usage: 'theme [name]',
     summary: 'change colours',
-    man: { description: ['Switches between the dark and light colour schemes. Your choice is remembered.'], examples: ['theme light'] },
+    man: {
+      description: ['Switches colour scheme. With no name, lists the themes. Your choice is remembered.', `Themes: ${THEMES.join(', ')}`],
+      examples: ['theme', 'theme gruvbox'],
+    },
     run: ([theme], ctx) => {
-      if (!theme || !ctx.setTheme(theme)) ctx.print(err('theme: pick light or dark'));
+      if (!theme) return ctx.print(`themes: ${THEMES.join('  ')}`, dim(`current: ${document.documentElement.dataset.theme}`));
+      if (!ctx.setTheme(theme.toLowerCase())) ctx.print(err(`theme: no theme '${theme}'. try: ${THEMES.join(', ')}`));
     },
   },
   {
@@ -375,7 +380,9 @@ export function complete(input: string, cwd: string): string {
   const pool =
     parts.length === 1
       ? commands.filter((c) => !c.hidden).map((c) => c.name)
-      : listDir(cwd, last.startsWith('.')).map((f) => f.replace(/\/$/, ''));
+      : parts[0] === 'theme'
+        ? THEMES
+        : listDir(cwd, last.startsWith('.')).map((f) => f.replace(/\/$/, ''));
   const hits = pool.filter((p) => p.toLowerCase().startsWith(last));
   if (hits.length !== 1) return input;
   parts[parts.length - 1] = hits[0];
